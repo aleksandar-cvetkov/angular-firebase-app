@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "flex-angular-app": {
+    "angular-firebase-app": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -61,10 +61,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "flex-angular-app:build:production"
+              "buildTarget": "angular-firebase-app:build:production"
             },
             "development": {
-              "buildTarget": "flex-angular-app:build:development"
+              "buildTarget": "angular-firebase-app:build:development"
             }
           },
           "defaultConfiguration": "development"

@@ -1,5 +1,5 @@
 {
-  "name": "flex-angular-app",
+  "name": "angular-firebase-app",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
