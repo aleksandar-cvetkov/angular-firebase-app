@@ -5,7 +5,10 @@ import { ForgotPassword } from './auth/forgot-password/forgot-password';
 import { Profile } from './user/profile/profile';
 
 export const routes: Routes = [
-    { path: 'login', component: Login },
+    {
+        path: 'login',
+        loadComponent: () => import('./auth/login/login').then(m => m.Login)
+    },
     { path: 'register', component: Register },
     { path: 'change-password', component: ForgotPassword },
     { path: 'profile', component: Profile },
