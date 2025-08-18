@@ -1,9 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
+import { AuthService } from '../auth.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-forgot-password',
@@ -13,18 +15,26 @@ import { MatInputModule } from '@angular/material/input';
   styleUrl: './forgot-password.scss'
 })
 export class ForgotPassword {
+  private _fb = inject(FormBuilder);
+  private _authService = inject(AuthService);
+  private _snackBar = inject(MatSnackBar);
   forgotForm!: FormGroup;  
 
-  constructor(private _fb: FormBuilder) {
+  constructor() {
     this.forgotForm = this._fb.group({
       email: ['', [Validators.required, Validators.email]]
     });
   }
 
-  onSubmit() {
+  async onSubmit() {
     if (this.forgotForm.valid) {
       console.log(this.forgotForm.value);
-      // TODO: интеграција со Firebase Auth -> sendPasswordResetEmail
+      try {
+        await this._authService.resetPassword(this.forgotForm.get('email')?.value);
+        this._snackBar.open('Reset password email sent', undefined, { duration: 3000 });
+      } catch (err: any) {
+        this._snackBar.open('Error', 'Dismiss');
+      }
     }
   }
 }
