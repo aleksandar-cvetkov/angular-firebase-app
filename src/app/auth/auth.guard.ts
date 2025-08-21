@@ -10,8 +10,8 @@ export const authGuard: CanActivateFn = (route, state) => {
   return auth.user$.pipe(
     map(user => {
       if (user) {
-        console.log('✅ корисникот е најавен');
-        auth.logout();
+        console.log('✅ корисникот е најавен => ', user);
+        // auth.logout();
         return true; // ✅ корисникот е најавен
       } else {
         router.navigate(['/login']);
