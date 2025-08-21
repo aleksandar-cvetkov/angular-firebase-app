@@ -30,8 +30,8 @@ export class ForgotPassword {
     if (this.forgotForm.valid) {
       console.log(this.forgotForm.value);
       try {
-        await this._authService.resetPassword(this.forgotForm.get('email')?.value);
-        this._snackBar.open('Reset password email sent', undefined, { duration: 3000 });
+        await this._authService.forgotPassword(this.forgotForm.get('email')?.value);
+        this._snackBar.open('Reset password email sent. Check your inbox.', undefined, { duration: 3000 });
       } catch (err: any) {
         this._snackBar.open('Error', 'Dismiss');
       }
