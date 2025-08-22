@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AuthService } from '../auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -26,6 +27,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class Login {
   private _fb = inject(FormBuilder);
   private _authService = inject(AuthService);
+  private _router = inject(Router);
   private _snackBar = inject(MatSnackBar);
   loginForm!: FormGroup
 
@@ -50,6 +52,7 @@ export class Login {
       try {
         await this._authService.login(this.emailControl.value, this.passwordControl.value);
         this._snackBar.open('Login is successful', undefined, { duration: 3000 });
+        this._router.navigate(['/profile']);
       } catch (err: any) {
         this._snackBar.open('Error', 'Dismiss');
       }
