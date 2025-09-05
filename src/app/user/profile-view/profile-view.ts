@@ -5,6 +5,8 @@ import { UserProfileService } from '../../core/service/user-profile.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-profile-view',
@@ -12,7 +14,9 @@ import { CommonModule } from '@angular/common';
   imports: [
     CommonModule,
     MatCardModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatButtonModule,
+    RouterModule
   ],
   templateUrl: './profile-view.html',
   styleUrl: './profile-view.scss'
@@ -24,5 +28,9 @@ export class ProfileView implements OnInit {
 
   ngOnInit(): void {
     this.userProfile$ = this._userProfileService.getCurrentUserProfile();
+
+    this.userProfile$.subscribe(value => {
+      console.log('userProfile value:', value);
+    });
   }
 }

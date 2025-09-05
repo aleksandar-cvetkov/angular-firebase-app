@@ -26,6 +26,11 @@ export const routes: Routes = [
     {
         path: 'profile',
         loadComponent: () => import('./user/profile-view/profile-view').then(m => m.ProfileView),
+        // canActivate: [authGuard]
+    },
+    {
+        path: 'profile-edit',
+        loadComponent: () => import('./user/profile-edit/profile-edit').then(m => m.ProfileEdit),
         canActivate: [authGuard]
     },
     {
