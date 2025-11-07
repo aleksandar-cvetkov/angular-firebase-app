@@ -1,5 +1,6 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Auth, confirmPasswordReset, createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithEmailAndPassword, signOut, User, verifyPasswordResetCode } from '@angular/fire/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 // import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { authState } from 'rxfire/auth';
 import { Observable } from 'rxjs';
@@ -9,8 +10,21 @@ import { Observable } from 'rxjs';
 })
 export class AuthService {
   private _auth: Auth = inject(Auth);
+  private _authState = signal<User | null>(null);
   // private _afAuth = inject(AngularFireAuth);
   user$: Observable<User | null> = authState(this._auth);
+
+  constructor() {
+    // слушаме промени на auth state
+    onAuthStateChanged(this._auth, (user) => {
+      this._authState.set(user);
+    });
+  }
+
+  /** ✅ Signal кој секогаш ја има моменталната состојба на најавениот корисник */
+  currentUserSignal() {
+    return this._authState();
+  }
 
   async register(email: string, password: string) {
     return createUserWithEmailAndPassword(this._auth, email, password);
