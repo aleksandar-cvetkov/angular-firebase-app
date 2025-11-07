@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
+import {MatIconModule} from '@angular/material/icon';
 
 @Component({
   selector: 'app-profile-edit',
@@ -18,7 +19,8 @@ import { MatInputModule } from '@angular/material/input';
     MatFormFieldModule,
     MatInputModule,
     MatCardModule,
-    MatButtonModule
+    MatButtonModule,
+    MatIconModule
   ],
   templateUrl: './profile-edit.html',
   styleUrl: './profile-edit.scss'
@@ -29,13 +31,13 @@ export class ProfileEdit {
   private _snackBar = inject(MatSnackBar);
 
   selectedFile?: File;
-  previewUrl?: string; // ќе ја држи локалната preview слика
+  previewUrl: string | null = null; // ќе ја држи локалната preview слика
 
   profileForm = this._fb.group({
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
     profession: [''],
-    hobbies: [this._fb.nonNullable.array<string>([])],
+    bio: [''],
     location: [''],
     photoUrl: [''],
   });
@@ -61,9 +63,15 @@ export class ProfileEdit {
         this.previewUrl = reader.result as string;
       };
       reader.readAsDataURL(this.selectedFile);
+      this.profileForm.markAsDirty();
 
       console.log('this.selectedFile ==>> ', this.selectedFile)
     }
+  }
+
+  onRemovePhoto() {
+    this.previewUrl = null;
+    this.profileForm.markAsDirty();
   }
 
   async onSave() {
@@ -82,6 +90,8 @@ export class ProfileEdit {
           console.log('photo url ==>> ', photoUrl)
           data = { ...data, photoUrl: photoUrl } as Partial<UserProfile>;
           console.log('data ==>> ', data)
+        } else {
+          data = { ...data, photoUrl: null } as Partial<UserProfile>;
         }
 
         await this.profileService.updateUserProfile(data);

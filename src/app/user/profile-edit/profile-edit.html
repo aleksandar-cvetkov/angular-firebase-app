@@ -29,8 +29,8 @@
 
                 <div class="col-md-6">
                     <mat-form-field appearance="outline" class="w-100">
-                        <mat-label>Hobby</mat-label>
-                        <input matInput formControlName="hobbies" />
+                        <mat-label>Bio</mat-label>
+                        <textarea matInput formControlName="bio"></textarea>
                     </mat-form-field>
                 </div>
             </div>
@@ -45,23 +45,22 @@
 
                 <div class="col-md-6">
                     <label for="photo" class="form-label">Profile Photo</label>
-                    <input type="file" class="form-control" (change)="onFileSelected($event)">
                     <!-- Preview слика -->
                     @if (previewUrl) {
-                    <div class="mt-3">
-                        <p>Preview:</p>
-                        <img [src]="previewUrl" alt="Preview" class="img-thumbnail" style="max-width: 200px;">
-                    </div>
+                        <div class="mt-3 preview-img">
+                            <button matIconButton type="button" (click)="onRemovePhoto()">
+                                <mat-icon>close</mat-icon>
+                            </button>
+                            <img [src]="previewUrl" alt="Preview" class="img-thumbnail" style="max-width: 200px;">
+                        </div>
+                    } @else {
+                        <input type="file" class="form-control" (change)="onFileSelected($event)">
                     }
                 </div>
             </div>
 
-            <div class="row">
-
-            </div>
-
             <div class="mt-3 d-flex justify-content-center">
-                <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid">
+                <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid || profileForm.pristine">
                     Save Changes
                 </button>
             </div>

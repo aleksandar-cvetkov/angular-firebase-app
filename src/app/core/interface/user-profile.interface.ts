@@ -7,7 +7,6 @@ export interface UserProfile {
     photoUrl?: string | null;
     location?: string | null;
     profession?: string | null;
-    bio?: string;
-    hobbies?: string[] | null;
+    bio?: string | null;
     createdAt: any; // firebase.firestore.FieldValue или Date
 }

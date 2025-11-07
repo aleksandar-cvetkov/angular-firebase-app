@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './auth/auth.guard';
+import { canEditProfileGuard } from './auth/can-edit-profile.guard';
 
 export const routes: Routes = [
     {
@@ -24,14 +25,14 @@ export const routes: Routes = [
         loadComponent: () => import('./auth/reset-password/reset-password').then(m => m.ResetPassword)
     },
     {
-        path: 'profile',
+        path: 'profile/:id',
         loadComponent: () => import('./user/profile-view/profile-view').then(m => m.ProfileView),
         // canActivate: [authGuard]
     },
     {
-        path: 'profile-edit',
+        path: 'profile-edit/:id',
         loadComponent: () => import('./user/profile-edit/profile-edit').then(m => m.ProfileEdit),
-        canActivate: [authGuard]
+        canActivate: [canEditProfileGuard]
     },
     {
         path: '**',
