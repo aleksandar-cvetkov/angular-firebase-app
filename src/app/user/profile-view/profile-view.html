@@ -19,7 +19,7 @@
 
         @if (isOwner()) {
           <mat-card-actions>
-            <button mat-raised-button color="primary" routerLink="/profile-edit">
+            <button mat-raised-button color="primary" routerLink="/profile-edit/{{ profile()?.uid }}">
               Уреди профил
             </button>
           </mat-card-actions>
