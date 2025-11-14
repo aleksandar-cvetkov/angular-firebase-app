@@ -15,6 +15,15 @@
             <button mat-raised-button color="primary" class="w-100" type="submit" [disabled]="loginForm.invalid">
                 Sign In
             </button>
+
+            <div class="row">
+                <div class="col">
+                    <button matButton color="primary" class="w-100 mt-2" routerLink="/register">Create new account</button>
+                </div>
+                <div class="col">
+                    <button matButton color="primary" class="w-100 mt-2" routerLink="/forgot-password">Forgotten password?</button>
+                </div>
+            </div>
         </form>
     </mat-card>
 </div>

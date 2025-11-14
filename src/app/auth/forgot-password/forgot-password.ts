@@ -6,11 +6,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { AuthService } from '../auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatInputModule, MatButtonModule, MatCardModule],
+  imports: [CommonModule, ReactiveFormsModule, MatInputModule, MatButtonModule, MatCardModule, RouterModule],
   templateUrl: './forgot-password.html',
   styleUrl: './forgot-password.scss'
 })

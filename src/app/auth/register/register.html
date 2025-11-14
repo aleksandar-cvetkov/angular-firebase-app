@@ -1,6 +1,6 @@
 <div class="d-flex justify-content-center mt-5">
     <mat-card class="p-4" style="width: 400px;">
-        <h2 class="mb-4">Register</h2>
+        <h2 class="mb-4 text-center">Register</h2>
         <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
             <mat-form-field appearance="outline" class="w-100 mb-3">
                 <mat-label>Email</mat-label>
@@ -20,6 +20,8 @@
             <button mat-raised-button color="primary" class="w-100" type="submit" [disabled]="registerForm.invalid">
                 Register
             </button>
+
+            <button matButton color="primary" class="w-100 mt-2" routerLink="/login">Already have an account? Login</button>
         </form>
     </mat-card>
 </div>
