@@ -1,11 +1,14 @@
 <div class="container mt-4">
-  <div class="menu-holder">
-    <button matButton [matMenuTriggerFor]="menu">Здраво Александар Цветков / accvetkov@gmail.com</button>
-    <mat-menu #menu="matMenu" xPosition="before">
-      <button mat-menu-item>Профил</button>
-      <button mat-menu-item>Уреди профил</button>
-      <button mat-menu-item>Одјави се</button>
-    </mat-menu>
-  </div>
+  @if (userId()) {
+    <div class="menu-holder mb-3">
+      <button matButton [matMenuTriggerFor]="menu">Здраво {{ userName() || userEmail() }}</button>
+      <mat-menu #menu="matMenu" xPosition="before">
+        <button mat-menu-item (click)="goToProfile()">Профил</button>
+        <button mat-menu-item (click)="goToEditProfile()">Уреди профил</button>
+        <button mat-menu-item (click)="logout()">Одјави се</button>
+      </mat-menu>
+    </div>
+  }
+  
   <router-outlet></router-outlet>
 </div>

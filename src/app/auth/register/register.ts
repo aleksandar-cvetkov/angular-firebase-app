@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,6 +8,7 @@ import { MatCardModule } from '@angular/material/card';
 import { AuthService } from '../auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { RouterModule } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-register',
@@ -20,7 +21,8 @@ import { RouterModule } from '@angular/router';
     MatInputModule,
     MatButtonModule,
     MatCardModule,
-    RouterModule
+    RouterModule,
+    MatIconModule
   ],
   templateUrl: './register.html',
   styleUrl: './register.scss'
@@ -29,13 +31,14 @@ export class Register {
   private _snackBar = inject(MatSnackBar);
   private _fb = inject(FormBuilder);
   private _authService = inject(AuthService);
-  registerForm!: FormGroup;  
+  registerForm!: FormGroup;
+  hide = signal(true);
 
   constructor() {
     this.registerForm = this._fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required]
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      // confirmPassword: ['', Validators.required]
     });
   }
 
@@ -45,6 +48,10 @@ export class Register {
 
   get passwordControl() {
     return this.registerForm.get('password') as FormControl
+  }
+
+  onHidePassword() {
+    this.hide.set(!this.hide());
   }
 
   async onSubmit() {
