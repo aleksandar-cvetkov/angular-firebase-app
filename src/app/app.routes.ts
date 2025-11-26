@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './auth/auth.guard';
 import { canEditProfileGuard } from './auth/can-edit-profile.guard';
+import { redirectLoggedInToProfileGuard } from './auth/auth.guard';
 
 export const routes: Routes = [
     {
@@ -10,24 +10,27 @@ export const routes: Routes = [
     },
     {
         path: 'login',
-        loadComponent: () => import('./auth/login/login').then(m => m.Login)
+        loadComponent: () => import('./auth/login/login').then(m => m.Login),
+        canActivate: [redirectLoggedInToProfileGuard]
     },
     {
         path: 'register',
-        loadComponent: () => import('./auth/register/register').then(m => m.Register)
+        loadComponent: () => import('./auth/register/register').then(m => m.Register),
+        canActivate: [redirectLoggedInToProfileGuard]
     },
     {
         path: 'forgot-password',
-        loadComponent: () => import('./auth/forgot-password/forgot-password').then(m => m.ForgotPassword)
+        loadComponent: () => import('./auth/forgot-password/forgot-password').then(m => m.ForgotPassword),
+        canActivate: [redirectLoggedInToProfileGuard]
     },
     {
         path: 'reset-password',
-        loadComponent: () => import('./auth/reset-password/reset-password').then(m => m.ResetPassword)
+        loadComponent: () => import('./auth/reset-password/reset-password').then(m => m.ResetPassword),
+        canActivate: [redirectLoggedInToProfileGuard]
     },
     {
         path: 'profile/:id',
-        loadComponent: () => import('./user/profile-view/profile-view').then(m => m.ProfileView),
-        // canActivate: [authGuard]
+        loadComponent: () => import('./user/profile-view/profile-view').then(m => m.ProfileView)
     },
     {
         path: 'profile-edit/:id',

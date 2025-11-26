@@ -9,12 +9,24 @@
 
             <mat-form-field appearance="outline" class="w-100 mb-3">
                 <mat-label>Password</mat-label>
-                <input matInput formControlName="password" type="password" required>
+                <input matInput formControlName="password" [type]="hide() ? 'password' : 'text'" required>
+                <button matIconButton matSuffix type="button" (click)="onHidePassword()" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide()">
+                    <mat-icon>{{ hide() ? 'visibility' : 'visibility_off' }}</mat-icon>
+                </button>
             </mat-form-field>
 
             <button mat-raised-button color="primary" class="w-100" type="submit" [disabled]="loginForm.invalid">
                 Sign In
             </button>
+
+            <div class="row">
+                <div class="col">
+                    <button matButton type="button" color="primary" class="w-100 mt-2" routerLink="/register">Create new account</button>
+                </div>
+                <div class="col">
+                    <button matButton type="button" color="primary" class="w-100 mt-2" routerLink="/forgot-password">Forgotten password?</button>
+                </div>
+            </div>
         </form>
     </mat-card>
 </div>
