@@ -48,4 +48,21 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .menu-holder {
   position: absolute;
   right: 200px;
+  z-index: 1;
+
+  .menu-button {
+    background: #dedede;
+  }
+}
+
+.navigate-buttons {
+  position: absolute;
+  right: 0;
+  top: 20px;
+  width: 200px;
+
+  button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
 }
