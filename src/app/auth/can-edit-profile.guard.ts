@@ -12,7 +12,7 @@ export const canEditProfileGuard: CanActivateFn = (route) => {
   if (currentUser && currentUser.uid === routeId) {
     return true;
   } else {
-    router.navigate(['/profile', routeId]);
-    return false;
+    return router.navigate(['/profile', routeId]);
+    // return false;
   }
 };

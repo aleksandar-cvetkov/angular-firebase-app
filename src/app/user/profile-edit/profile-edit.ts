@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserProfileService } from '../../core/service/user-profile.service';
 import { UserProfile } from '../../core/interface/user-profile.interface';
@@ -8,7 +8,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
-import {MatIconModule} from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
+import { User } from '@angular/fire/auth';
+import { AuthService } from '../../auth/auth.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-profile-edit',
@@ -29,6 +32,9 @@ export class ProfileEdit {
   private _fb = inject(FormBuilder);
   private profileService = inject(UserProfileService);
   private _snackBar = inject(MatSnackBar);
+  private _authService = inject(AuthService);
+  private _router = inject(Router);
+  private _activatedRoute = inject(ActivatedRoute);
 
   selectedFile?: File;
   previewUrl: string | null = null; // ќе ја држи локалната preview слика
@@ -41,6 +47,17 @@ export class ProfileEdit {
     location: [''],
     photoUrl: [''],
   });
+
+  constructor() {
+    // This effect runs immediately when the component loads and whenever the user signal changes
+    effect(() => {
+      const user: User | null = this._authService.currentUserSignal();
+      if (!user) {
+        const id = this._activatedRoute.snapshot.paramMap.get('id');
+        this._router.navigate(['/profile', id]);
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.profileService.getCurrentUserProfile().subscribe(profile => {

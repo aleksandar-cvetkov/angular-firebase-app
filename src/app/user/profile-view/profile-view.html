@@ -1,4 +1,4 @@
-<div class="container mt-4">
+<div class="container mt-4 position-relative">
   <div class="row justify-content-center">
     <div class="col-md-6">
       @if (profile()) {
@@ -29,5 +29,16 @@
       <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
       }
     </div>
+
+    @if (!isOwner()) {
+      <div class="navigate-buttons">
+        <button mat-raised-button color="accent" routerLink="/login">
+          Sign in
+        </button>
+        <button mat-raised-button color="accent" routerLink="/register">
+          Register
+        </button>
+      </div>
+    }
   </div>
 </div>
