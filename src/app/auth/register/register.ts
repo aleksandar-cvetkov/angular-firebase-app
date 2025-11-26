@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,8 +7,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { AuthService } from '../auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { User } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-register',
@@ -31,6 +32,7 @@ export class Register {
   private _snackBar = inject(MatSnackBar);
   private _fb = inject(FormBuilder);
   private _authService = inject(AuthService);
+  private _router = inject(Router);
   registerForm!: FormGroup;
   hide = signal(true);
 
@@ -39,6 +41,14 @@ export class Register {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
       // confirmPassword: ['', Validators.required]
+    });
+
+    // This effect runs immediately when the component loads and whenever the user signal changes
+    effect(() => {
+      const user: User | null = this._authService.currentUserSignal();
+      if (user) {
+        this._router.navigate(['/profile', user.uid]);
+      }
     });
   }
 

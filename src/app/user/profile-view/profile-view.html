@@ -1,5 +1,5 @@
 <div class="container mt-4 position-relative">
-  <div class="row justify-content-center">
+  <div class="row justify-content-center flex-column align-items-center">
     <div class="col-md-6">
       @if (profile()) {
       <mat-card>
@@ -31,7 +31,7 @@
     </div>
 
     @if (!isOwner()) {
-      <div class="navigate-buttons">
+      <div class="col-md-6 navigate-buttons mt-3">
         <button mat-raised-button color="accent" routerLink="/login">
           Sign in
         </button>
