@@ -30,7 +30,7 @@
       }
     </div>
 
-    @if (!isOwner()) {
+    @if (!currentUser()) {
       <div class="col-md-6 navigate-buttons mt-3">
         <button mat-raised-button color="accent" routerLink="/login">
           Sign in

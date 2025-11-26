@@ -31,6 +31,7 @@ export class ProfileView {
 
   profile = signal<UserProfile | null>(null);
   isOwner = signal(false);
+  currentUser = this._authService.currentUserSignal;
 
   constructor() {
     this._route.paramMap.pipe(switchMap(params => {
@@ -41,8 +42,7 @@ export class ProfileView {
       console.log('ProfileView: Fetched profile data:', profile);
       this.profile.set(profile!);
 
-      const currentUser = this._authService.currentUserSignal();
-      this.isOwner.set(currentUser?.uid === id);
+      this.isOwner.set(this.currentUser()?.uid === id);
     });
   }
 
