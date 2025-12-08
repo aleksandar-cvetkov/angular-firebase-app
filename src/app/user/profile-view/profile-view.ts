@@ -1,13 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { map, Observable, switchMap } from 'rxjs';
 import { UserProfile } from '../../core/interface/user-profile.interface';
-import { UserProfileService } from '../../core/service/user-profile.service';
+import { UserProfileService } from '../../core/services/user-profile.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { AuthService } from '../../auth/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-profile-view',
