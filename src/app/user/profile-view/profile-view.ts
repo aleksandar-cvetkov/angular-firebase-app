@@ -1,7 +1,7 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, input, resource, computed, effect } from '@angular/core';
 import { map, Observable, switchMap } from 'rxjs';
 import { UserProfile } from '../../core/interface/user-profile.interface';
-import { UserProfileService } from '../../core/services/user-profile.service';
+import { UserService } from '../../core/services/user.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
@@ -23,34 +23,53 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrl: './profile-view.scss'
 })
 export class ProfileView {
-  // userProfile$!: Observable<UserProfile | null>;
-
-  private _route = inject(ActivatedRoute);
   private _authService = inject(AuthService);
-  private _userProfileService = inject(UserProfileService);
+  private _userService = inject(UserService);
 
-  profile = signal<UserProfile | null>(null);
-  isOwner = signal(false);
-  currentUser = this._authService.currentUserSignal;
+  // 1. Route Param as Signal Input
+  // Automatically receives the 'id' from the route path (e.g., /profile/:id)
+  // Requires provideRouter(routes, withComponentInputBinding())
+  id = input<string>();
 
+  // 2. Resource (The modern replacement for switchMap)
+  // Automatically triggers the loader whenever the 'request' signal (this.id) changes.
+  profileResource = resource({
+    loader: async () => {
+      const uid = this.id();
+      if (!uid) return null;
+
+      return await this._userService.getUserProfileById(uid);
+    }
+  });
+
+  // React to id() changes and reload resource
   constructor() {
-    this._route.paramMap.pipe(switchMap(params => {
-      const id = params.get('id');
-      console.log('ProfileView: Loaded profile for ID:', id);
-      return this._userProfileService.getUserProfileById(id!).pipe(map(profile => ({ id, profile })));
-    })).subscribe(({ id, profile }) => {
-      console.log('ProfileView: Fetched profile data:', profile);
-      this.profile.set(profile!);
-
-      this.isOwner.set(this.currentUser()?.uid === id);
+    effect(() => {
+      const uid = this.id();     // track changes
+      if (uid) {
+        this.profileResource.reload();  // trigger loader again
+      }
     });
   }
 
-  // ngOnInit(): void {
-  //   this.userProfile$ = this._userProfileService.getCurrentUserProfile();
+  // 3. Computed State
+  // Expose the value of the resource cleanly
+  profile = computed(() => this.profileResource.value() ?? null);
 
-  //   this.userProfile$.subscribe(value => {
-  //     console.log('userProfile value:', value);
-  //   });
-  // }
+  // Loading state (Bonus: resource gives you isLoading for free)
+  isLoading = computed(() => this.profileResource.isLoading());
+
+  // Error state (Bonus: resource captures errors)
+  error = computed(() => this.profileResource.error());
+
+  // 4. Ownership Logic
+  // Automatically recalculates when either the profile or the authenticated user changes
+  isOwner = computed(() => {
+    const profile = this.profile();
+    const currentUser = this._authService.currentUserSignal(); // Assuming this is a signal
+
+    if (!profile || !currentUser) return false;
+
+    return currentUser?.uid === this.id();
+  });
 }

@@ -1,11 +1,6 @@
 import { CanActivateFn, Router } from '@angular/router';
-import { first, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { inject } from '@angular/core';
-import {
-  canActivate,
-  redirectUnauthorizedTo,
-  redirectLoggedInTo
-} from '@angular/fire/compat/auth-guard';
 import { Auth, user } from '@angular/fire/auth';
 import { firstValueFrom } from 'rxjs';
 
@@ -24,12 +19,10 @@ export const authGuard: CanActivateFn = (route, state) => {
     map(user => {
       if (user) {
         console.log('✅ корисникот е најавен => ', user);
-        // auth.logout();
         return true; // User is logged in, allow access
       } else {
         // User is not logged in, redirect to login page
         return router.createUrlTree(['/login']);
-        // return false;
       }
     })
   );
@@ -52,5 +45,3 @@ export const redirectLoggedInToProfileGuard: CanActivateFn = async (route, state
   return true; // Allow non-logged-in users to proceed
 }
 
-export const redirectUnauthorizedToLogin = () => redirectUnauthorizedTo(['/login']);
-// export const redirectLoggedInToProfile = () => redirectLoggedInTo(['/profile']);

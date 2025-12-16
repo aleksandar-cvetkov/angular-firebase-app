@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, effect, inject } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { UserProfileService } from '../../core/services/user-profile.service';
+import { UserService } from '../../core/services/user.service';
 import { UserProfile } from '../../core/interface/user-profile.interface';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -30,7 +30,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class ProfileEdit {
   private _fb = inject(FormBuilder);
-  private profileService = inject(UserProfileService);
+  private _userService = inject(UserService);
   private _snackBar = inject(MatSnackBar);
   private _authService = inject(AuthService);
   private _router = inject(Router);
@@ -48,6 +48,8 @@ export class ProfileEdit {
     photoUrl: [''],
   });
 
+  currentUserProfile = this._userService.currentUserProfile;
+
   constructor() {
     // This effect runs immediately when the component loads and whenever the user signal changes
     effect(() => {
@@ -60,12 +62,12 @@ export class ProfileEdit {
   }
 
   ngOnInit(): void {
-    this.profileService.getCurrentUserProfile().subscribe(profile => {
-      if (profile) {
-        this.profileForm.patchValue(profile);
-        this.previewUrl = profile.photoUrl!;
-      }
-    });
+    // this._userService.getCurrentUserProfile().subscribe(profile => {
+    //   if (profile) {
+    //     this.profileForm.patchValue(profile);
+    //     this.previewUrl = profile.photoUrl!;
+    //   }
+    // });
   }
 
   onFileSelected(event: Event) {
@@ -103,7 +105,7 @@ export class ProfileEdit {
 
         // ако има селектирана слика → прво upload во Storage
         if (this.selectedFile) {
-          const photoUrl = await this.profileService.uploadProfilePhoto(this.selectedFile);
+          const photoUrl = await this._userService.uploadProfilePhoto(this.selectedFile);
           console.log('photo url ==>> ', photoUrl)
           data = { ...data, photoUrl: photoUrl } as Partial<UserProfile>;
           console.log('data ==>> ', data)
@@ -111,7 +113,7 @@ export class ProfileEdit {
           data = { ...data, photoUrl: null } as Partial<UserProfile>;
         }
 
-        await this.profileService.updateUserProfile(data);
+        await this._userService.updateUserProfile(data);
 
         this._snackBar.open('Profile updated successfully!', undefined, { duration: 3000 });
       } catch (err) {
