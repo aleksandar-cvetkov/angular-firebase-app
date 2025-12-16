@@ -1,7 +1,7 @@
 import { computed, inject, Injectable, Signal } from '@angular/core';
 import { from, map, Observable, of, switchMap } from 'rxjs';
 import { UserProfile } from '../interface/user-profile.interface';
-import { Auth, authState, User as FirebaseUser, user as authObservable } from '@angular/fire/auth';
+import { Auth, authState, User as FirebaseUser, user as authObservable, user } from '@angular/fire/auth';
 import { doc, docData, Firestore, setDoc } from '@angular/fire/firestore';
 import { Storage, getDownloadURL, ref, uploadBytes } from '@angular/fire/storage';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -16,24 +16,23 @@ export class UserService {
   private _auth = inject(Auth);
   private _storage = inject(Storage);
 
-  private currentUserAuthSignal = toSignal(authObservable(this._auth));
+  // 1. THE PIPELINE (Internal)
+  // We use RxJS here because we are coordinating two real-time streams.
+  private userProfile$ = user(this._auth).pipe(
+    switchMap((u) => {
+      // Logic: If user exists, connect to their Firestore document live stream
+      if (u) {
+        return docData(doc(this._firestore, `users/${u.uid}`)) as Observable<UserProfile>;
+      }
+      // Logic: If no user, return null
+      return of(null); 
+    })
+  );
 
-  currentUserProfile: Signal<UserProfile | null | undefined> = computed(() => {
-    const user = this.currentUserAuthSignal();
-    if (!user) {
-      return user; // Returns undefined (loading) or null (logged out)
-    }
-
-    const userDocRef = doc(this._firestore, `users/${user.uid}`);
-
-    const profileSignal = toSignal(
-      docData(userDocRef) as Observable<UserProfile | undefined>,
-      { initialValue: undefined }
-    );
-
-    // Return the value of the profile signal
-    return profileSignal() ?? null;
-  });
+  // 2. THE OUTPUT (Public)
+  // We convert the stream to a Signal for the components to consume easily.
+  // This satisfies the "Signal-based Component" requirement.
+  public currentUserProfile = toSignal(this.userProfile$, { initialValue: undefined });
 
   // Create / update profile
   async updateUserProfile(profile: Partial<UserProfile>): Promise<void> {

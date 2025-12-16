@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserService } from '../../core/services/user.service';
 import { UserProfile } from '../../core/interface/user-profile.interface';
@@ -37,7 +37,8 @@ export class ProfileEdit {
   private _activatedRoute = inject(ActivatedRoute);
 
   selectedFile?: File;
-  previewUrl: string | null = null; // ќе ја држи локалната preview слика
+  previewUrl = signal<string | null>(null); // ќе ја држи локалната preview слика
+  loading = signal(false);
 
   profileForm = this._fb.group({
     firstName: ['', Validators.required],
@@ -48,26 +49,39 @@ export class ProfileEdit {
     photoUrl: [''],
   });
 
-  currentUserProfile = this._userService.currentUserProfile;
+  userProfile = this._userService.currentUserProfile();
 
   constructor() {
     // This effect runs immediately when the component loads and whenever the user signal changes
     effect(() => {
       const user: User | null = this._authService.currentUserSignal();
-      if (!user) {
+
+      // Check explicitly for null (logged out), allow undefined (loading)
+      if (user === null) {
         const id = this._activatedRoute.snapshot.paramMap.get('id');
         this._router.navigate(['/profile', id]);
       }
     });
-  }
 
-  ngOnInit(): void {
-    // this._userService.getCurrentUserProfile().subscribe(profile => {
-    //   if (profile) {
-    //     this.profileForm.patchValue(profile);
-    //     this.previewUrl = profile.photoUrl!;
-    //   }
-    // });
+    // Reactively updates the form when the user profile data loads
+    effect(() => {
+      const profile = this.userProfile;
+
+      if (profile) {
+        // patchValue updates the form fields that match the profile object keys
+        this.profileForm.patchValue({
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          profession: profile.profession,
+          bio: profile.bio,
+          location: profile.location,
+          photoUrl: profile.photoUrl
+        }, { emitEvent: false }); // Prevent triggering valueChanges listeners if you have any
+
+        // Set the local preview signal
+        this.previewUrl.set(profile.photoUrl || null);
+      }
+    });
   }
 
   onFileSelected(event: Event) {
@@ -79,7 +93,7 @@ export class ProfileEdit {
       const reader = new FileReader();
       reader.onload = () => {
         // this.profileForm.patchValue({ photoUrl: reader.result as string });
-        this.previewUrl = reader.result as string;
+        this.previewUrl.set(reader.result as string);
       };
       reader.readAsDataURL(this.selectedFile);
       this.profileForm.markAsDirty();
@@ -89,43 +103,44 @@ export class ProfileEdit {
   }
 
   onRemovePhoto() {
-    this.previewUrl = null;
+    this.previewUrl.set(null);
     this.profileForm.markAsDirty();
   }
 
   async onSave() {
-    if (this.profileForm.valid) {
-      console.log('form value ==>> ', this.profileForm.value)
-      // if (!this.auth.currentUser) return;
-      // const uid = this.auth.currentUser.uid;
-      // this.loading = true;
+    if (this.profileForm.invalid) return;
 
-      try {
-        let data = { ...this.profileForm.value };
+    this.loading.set(true);
 
-        // ако има селектирана слика → прво upload во Storage
-        if (this.selectedFile) {
-          const photoUrl = await this._userService.uploadProfilePhoto(this.selectedFile);
-          console.log('photo url ==>> ', photoUrl)
-          data = { ...data, photoUrl: photoUrl } as Partial<UserProfile>;
-          console.log('data ==>> ', data)
-        } else {
-          data = { ...data, photoUrl: null } as Partial<UserProfile>;
-        }
+    try {
+      // 1. Prepare Base Data
+      // Exclude photoUrl from the raw form value initially
+      const { photoUrl, ...formData } = this.profileForm.value;
+      let finalData: Partial<UserProfile> = { ...formData };
 
-        await this._userService.updateUserProfile(data);
-
-        this._snackBar.open('Profile updated successfully!', undefined, { duration: 3000 });
-      } catch (err) {
-        console.error(err);
-        this._snackBar.open('Error updating profile', 'Close');
-      } finally {
-        // this.loading = false;
+      // 2. Handle Image Logic
+      // Scenario A: New file selected -> Upload it
+      if (this.selectedFile) {
+        const newPhotoUrl = await this._userService.uploadProfilePhoto(this.selectedFile);
+        finalData.photoUrl = newPhotoUrl;
+      } 
+      // Scenario B: No file selected, but preview is NULL (User removed it)
+      else if (this.previewUrl() === null) {
+        finalData.photoUrl = null;
       }
-      // const profile: UserProfile = this.profileForm.value as UserProfile;
-      // this.profileService.updateUserProfile(profile)
-      //   .then(() => this._snackBar.open('Profile updated successfully!', undefined, { duration: 3000 }))
-      //   .catch(err => this._snackBar.open('Error', 'Dismiss'));
+      // Scenario C: No change (User kept old photo) -> Do not include photoUrl in update
+      // (This prevents overwriting the existing URL with null)
+
+      // 3. Update Profile
+      await this._userService.updateUserProfile(finalData);
+
+      this._snackBar.open('Profile updated successfully!', undefined, { duration: 3000 });
+
+    } catch (err) {
+      console.error(err);
+      this._snackBar.open('Error updating profile', 'Close');
+    } finally {
+      this.loading.set(false);
     }
   }
 }
