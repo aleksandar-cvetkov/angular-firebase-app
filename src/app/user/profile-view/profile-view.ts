@@ -6,6 +6,8 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { UserProfile } from '../../core/interface/user-profile.interface';
+import { rxResource } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-profile-view',
@@ -32,19 +34,35 @@ export class ProfileView {
   id = input<string>();
 
   constructor() {
-  effect(() => {
-    console.log('Current Route ID Signal Value:', this.id());
-  });
-}
+    effect(() => {
+      console.log('Current Route ID Signal Value:', this.id());
+    });
+  }
 
   // 2. Resource (The modern replacement for switchMap)
   // Automatically triggers the loader whenever the 'request' signal (this.id) changes.
-  profileResource = resource({
-    loader: async () => {
-      const uid = this.id();
-      if (!uid) return null;
+  // profileResource = resource({
+  //   request: () => this.id(),
+  //   loader: async ({ request: uid }) => {
+  //     // const uid = request;
+  //     if (!uid) return null;
 
-      return await this._userService.getUserProfileById(uid);
+  //     return await this._userService.getUserProfileById(uid);
+  //   }
+  // });
+  profileResource = resource({
+    params: () => this.id(),
+    loader: async ({params}) => {
+      // 1. Capture the signal value at the VERY START
+      // This must happen before any 'await' to ensure Angular tracks the dependency.
+      // const uid = params.uid;
+
+      console.log('Current Route ID Signal Value - resource:', this.id());
+
+      if (!params) return;
+
+      // 2. Pass the captured value to your service
+      return await this._userService.getUserProfileById(params);
     }
   });
 
