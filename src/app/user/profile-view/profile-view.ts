@@ -1,4 +1,4 @@
-import { Component, inject, input, resource, computed } from '@angular/core';
+import { Component, inject, input, resource, computed, effect } from '@angular/core';
 import { UserService } from '../../core/services/user.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -24,10 +24,18 @@ export class ProfileView {
   private _authService = inject(AuthService);
   private _userService = inject(UserService);
 
+  currentUser = this._authService.currentUserSignal;
+
   // 1. Route Param as Signal Input
   // Automatically receives the 'id' from the route path (e.g., /profile/:id)
   // Requires provideRouter(routes, withComponentInputBinding())
   id = input<string>();
+
+  constructor() {
+  effect(() => {
+    console.log('Current Route ID Signal Value:', this.id());
+  });
+}
 
   // 2. Resource (The modern replacement for switchMap)
   // Automatically triggers the loader whenever the 'request' signal (this.id) changes.
@@ -42,7 +50,9 @@ export class ProfileView {
 
   // 3. Computed State
   // Expose the value of the resource cleanly
-  profile = computed(() => this.profileResource.value() ?? null);
+  profile = computed(() => {
+    return this.profileResource.value() ?? null;
+  });
 
   // Loading state (Bonus: resource gives you isLoading for free)
   isLoading = computed(() => this.profileResource.isLoading());
@@ -54,10 +64,11 @@ export class ProfileView {
   // Automatically recalculates when either the profile or the authenticated user changes
   isOwner = computed(() => {
     const profile = this.profile();
-    const currentUser = this._authService.currentUserSignal(); // Assuming this is a signal
 
-    if (!profile || !currentUser) return false;
+    if (!profile || !this.currentUser) return false;
 
-    return currentUser?.uid === this.id();
+    return this.currentUser()?.uid === this.profile()?.uid;
   });
+
+  isLoggedIn = computed(() => !!this.currentUser());
 }

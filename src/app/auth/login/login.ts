@@ -33,15 +33,18 @@ export class Login {
   private _authService = inject(AuthService);
   private _router = inject(Router);
   private _snackBar = inject(MatSnackBar);
-  loginForm!: FormGroup
-  hide = signal(true);
+
+  // Signals for UI state
+  hidePassword = signal(true);
+  isSubmitting = signal(false);
+
+  // Form Initialization
+  loginForm: FormGroup = this._fb.nonNullable.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', Validators.required]
+  });
 
   constructor() {
-    this.loginForm = this._fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
-    });
-
     // This effect runs immediately when the component loads and whenever the user signal changes
     effect(() => {
       const user: User | null = this._authService.currentUserSignal();
@@ -61,19 +64,23 @@ export class Login {
     return this.loginForm.get('password') as FormControl
   }
 
-  onHidePassword() {
-    this.hide.set(!this.hide());
+  togglePassword() {
+    this.hidePassword.update(hide => !hide);
   }
 
   async onSubmit() {
-    if (this.loginForm.valid) {
-      console.log(this.loginForm.value);
-      try {
-        await this._authService.login(this.emailControl.value, this.passwordControl.value);
-        this._snackBar.open('Login is successful', undefined, { duration: 3000 });
-      } catch (err: any) {
-        this._snackBar.open('Error', 'Dismiss');
-      }
+    if (this.loginForm.invalid) return;
+
+    this.isSubmitting.set(true);
+    const { email, password } = this.loginForm.getRawValue();
+    
+    try {
+      await this._authService.login(email, password);
+      this._snackBar.open('Login is successful', undefined, { duration: 3000 });
+    } catch (err: any) {
+      this._snackBar.open('Error', 'Dismiss');
+    } finally {
+      this.isSubmitting.set(false);
     }
   }
 }
