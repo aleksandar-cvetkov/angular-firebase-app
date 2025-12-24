@@ -1,12 +1,10 @@
-import { Component, inject, OnInit, signal, input, resource, computed, effect } from '@angular/core';
-import { map, Observable, switchMap } from 'rxjs';
-import { UserProfile } from '../../core/interface/user-profile.interface';
+import { Component, inject, input, resource, computed } from '@angular/core';
 import { UserService } from '../../core/services/user.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -41,16 +39,6 @@ export class ProfileView {
       return await this._userService.getUserProfileById(uid);
     }
   });
-
-  // React to id() changes and reload resource
-  constructor() {
-    effect(() => {
-      const uid = this.id();     // track changes
-      if (uid) {
-        this.profileResource.reload();  // trigger loader again
-      }
-    });
-  }
 
   // 3. Computed State
   // Expose the value of the resource cleanly
