@@ -3,45 +3,52 @@ import { map } from 'rxjs/operators';
 import { inject } from '@angular/core';
 import { Auth, user } from '@angular/fire/auth';
 import { firstValueFrom } from 'rxjs';
+import { AuthService } from '../services/auth.service';
 
-// const auth = inject(AuthService);
-
-/**
- * Guard that protects routes that require authentication (e.g., /profile-edit).
- * Redirects unauthorized users to the login page.
-*/
-export const authGuard: CanActivateFn = (route, state) => {
-  const currentUser$ = user(inject(Auth));
+/** * 1. Protects private routes.
+ * Redirects guests to /login.
+ */
+export const authGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
   const router = inject(Router);
 
-  // Using map on the observable is a cleaner way to handle redirects for protected routes
-  return currentUser$.pipe(
-    map(user => {
-      if (user) {
-        console.log('✅ корисникот е најавен => ', user);
-        return true; // User is logged in, allow access
-      } else {
-        // User is not logged in, redirect to login page
-        return router.createUrlTree(['/login']);
-      }
-    })
-  );
+  // We use the signal directly for a sync check
+  return authService.currentUserSignal() 
+    ? true 
+    : router.createUrlTree(['/login']);
 };
 
-/**
- * Guard that redirects logged-in users away from public-only routes (login, register)
- * to their specific profile page (/profile/:id).
+/** * 2. Prevent logged-in users from seeing Login/Register.
+ * Redirects to their own profile.
  */
-export const redirectLoggedInToProfileGuard: CanActivateFn = async (route, state) => {
-  const currentUser$ = user(inject(Auth));
+export const redirectLoggedInGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
   const router = inject(Router);
   
-  const currentUser = await firstValueFrom(currentUser$);
+  const user = authService.currentUserSignal();
 
-  if (currentUser) {
-    return router.createUrlTree(['/profile', currentUser.uid]);
+  // If logged in, send them to their profile, else let them see Login
+  return user 
+    ? router.createUrlTree(['/profile', user.uid]) 
+    : true;
+};
+
+/** * 3. Security check for editing.
+ * Ensures User A cannot edit User B's profile.
+ */
+export const canEditProfileGuard: CanActivateFn = (route) => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  const user = authService.currentUserSignal();
+  const routeId = route.paramMap.get('id');
+
+  // Verify ID match
+  if (user && user.uid === routeId) {
+    return true;
   }
 
-  return true; // Allow non-logged-in users to proceed
-}
+  // If it's not their profile, send them back to the view-only version
+  return router.createUrlTree(['/profile', routeId]);
+};
 
