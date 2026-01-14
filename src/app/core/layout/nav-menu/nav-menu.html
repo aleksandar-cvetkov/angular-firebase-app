@@ -1,10 +1,20 @@
-@if (userId()) {
 <div class="menu-holder mb-3">
-    <button matButton class="menu-button" [matMenuTriggerFor]="menu">Здраво {{ userName() || userEmail() }}</button>
+    @if (profile()) {
+    <button matButton class="menu-button" [matMenuTriggerFor]="menu">
+        @if (profile()?.photoUrl) {
+        <img [src]="profile()?.photoUrl" class="nav-avatar" alt="Avatar">
+        }
+        <span>Здраво {{ displayName() }}</span>
+    </button>
+
     <mat-menu #menu="matMenu" xPosition="before">
-        <button mat-menu-item (click)="goToProfile()">Профил</button>
-        <button mat-menu-item (click)="goToEditProfile()">Уреди профил</button>
+        <a mat-menu-item [routerLink]="['/profile', profile()?.uid]">
+            Profile
+        </a>
+        <a mat-menu-item [routerLink]="['/profile-edit', profile()?.uid]">
+            Edit Profile
+        </a>
         <button mat-menu-item (click)="logout()">Одјави се</button>
     </mat-menu>
+    }
 </div>
-}
