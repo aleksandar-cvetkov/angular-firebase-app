@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { canEditProfileGuard } from './auth/can-edit-profile.guard';
-import { redirectLoggedInToProfileGuard } from './auth/auth.guard';
+import { redirectLoggedInToProfileGuard } from './core/guards/auth.guard';
+import { canEditProfileGuard } from './core/guards/can-edit-profile.guard';
 
 export const routes: Routes = [
     {

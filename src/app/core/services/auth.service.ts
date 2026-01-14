@@ -1,4 +1,4 @@
-import { inject, Injectable, NgZone, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Auth, confirmPasswordReset, createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithEmailAndPassword, signOut, User, verifyPasswordResetCode } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -12,33 +12,16 @@ import { Observable } from 'rxjs';
 export class AuthService {
   private _auth: Auth = inject(Auth);
   private _currentUser = signal<User | null>(null);
-  private _router = inject(Router);
-  private _ngZone = inject(NgZone);
-  // private _afAuth = inject(AngularFireAuth);
-  user$: Observable<User | null> = authState(this._auth);
+  
+  /** ✅ Signal кој секогаш ја има моменталната состојба на најавениот корисник */
+  currentUserSignal = this._currentUser.asReadonly();
 
   constructor() {
     // слушаме промени на auth state
     onAuthStateChanged(this._auth, (user) => {
       this._currentUser.set(user);
-
-      // this._ngZone.run(() => {
-        // if (user) {
-        //   console.log('✅ корисникот е најавен => ', user);
-        //   this._router.navigate(['profile', user.uid]);
-        // } else {
-        //   console.log('✅ корисникот не е најавен');
-        //   this._router.navigate(['login']);
-        // }
-      // });
     });
   }
-
-  /** ✅ Signal кој секогаш ја има моменталната состојба на најавениот корисник */
-  currentUserSignal = this._currentUser.asReadonly();
-  // currentUserSignal() {
-  //   return this._currentUser();
-  // }
 
   async register(email: string, password: string) {
     return createUserWithEmailAndPassword(this._auth, email, password);

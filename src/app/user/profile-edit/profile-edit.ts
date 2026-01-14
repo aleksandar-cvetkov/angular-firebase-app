@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { UserProfileService } from '../../core/service/user-profile.service';
+import { UserService } from '../../core/services/user.service';
 import { UserProfile } from '../../core/interface/user-profile.interface';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,7 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { User } from '@angular/fire/auth';
-import { AuthService } from '../../auth/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
@@ -30,14 +30,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class ProfileEdit {
   private _fb = inject(FormBuilder);
-  private profileService = inject(UserProfileService);
+  private _userService = inject(UserService);
   private _snackBar = inject(MatSnackBar);
   private _authService = inject(AuthService);
   private _router = inject(Router);
   private _activatedRoute = inject(ActivatedRoute);
 
   selectedFile?: File;
-  previewUrl: string | null = null; // ќе ја држи локалната preview слика
+  previewUrl = signal<string | null>(null); // ќе ја држи локалната preview слика
+  loading = signal(false);
 
   profileForm = this._fb.group({
     firstName: ['', Validators.required],
@@ -48,22 +49,37 @@ export class ProfileEdit {
     photoUrl: [''],
   });
 
+  userProfile = this._userService.currentUserProfile();
+
   constructor() {
     // This effect runs immediately when the component loads and whenever the user signal changes
     effect(() => {
       const user: User | null = this._authService.currentUserSignal();
-      if (!user) {
+
+      // Check explicitly for null (logged out), allow undefined (loading)
+      if (user === null) {
         const id = this._activatedRoute.snapshot.paramMap.get('id');
         this._router.navigate(['/profile', id]);
       }
     });
-  }
 
-  ngOnInit(): void {
-    this.profileService.getCurrentUserProfile().subscribe(profile => {
+    // Reactively updates the form when the user profile data loads
+    effect(() => {
+      const profile = this.userProfile;
+
       if (profile) {
-        this.profileForm.patchValue(profile);
-        this.previewUrl = profile.photoUrl!;
+        // patchValue updates the form fields that match the profile object keys
+        this.profileForm.patchValue({
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          profession: profile.profession,
+          bio: profile.bio,
+          location: profile.location,
+          photoUrl: profile.photoUrl
+        }, { emitEvent: false }); // Prevent triggering valueChanges listeners if you have any
+
+        // Set the local preview signal
+        this.previewUrl.set(profile.photoUrl || null);
       }
     });
   }
@@ -77,7 +93,7 @@ export class ProfileEdit {
       const reader = new FileReader();
       reader.onload = () => {
         // this.profileForm.patchValue({ photoUrl: reader.result as string });
-        this.previewUrl = reader.result as string;
+        this.previewUrl.set(reader.result as string);
       };
       reader.readAsDataURL(this.selectedFile);
       this.profileForm.markAsDirty();
@@ -87,43 +103,44 @@ export class ProfileEdit {
   }
 
   onRemovePhoto() {
-    this.previewUrl = null;
+    this.previewUrl.set(null);
     this.profileForm.markAsDirty();
   }
 
   async onSave() {
-    if (this.profileForm.valid) {
-      console.log('form value ==>> ', this.profileForm.value)
-      // if (!this.auth.currentUser) return;
-      // const uid = this.auth.currentUser.uid;
-      // this.loading = true;
+    if (this.profileForm.invalid) return;
 
-      try {
-        let data = { ...this.profileForm.value };
+    this.loading.set(true);
 
-        // ако има селектирана слика → прво upload во Storage
-        if (this.selectedFile) {
-          const photoUrl = await this.profileService.uploadProfilePhoto(this.selectedFile);
-          console.log('photo url ==>> ', photoUrl)
-          data = { ...data, photoUrl: photoUrl } as Partial<UserProfile>;
-          console.log('data ==>> ', data)
-        } else {
-          data = { ...data, photoUrl: null } as Partial<UserProfile>;
-        }
+    try {
+      // 1. Prepare Base Data
+      // Exclude photoUrl from the raw form value initially
+      const { photoUrl, ...formData } = this.profileForm.value;
+      let finalData: Partial<UserProfile> = { ...formData };
 
-        await this.profileService.updateUserProfile(data);
-
-        this._snackBar.open('Profile updated successfully!', undefined, { duration: 3000 });
-      } catch (err) {
-        console.error(err);
-        this._snackBar.open('Error updating profile', 'Close');
-      } finally {
-        // this.loading = false;
+      // 2. Handle Image Logic
+      // Scenario A: New file selected -> Upload it
+      if (this.selectedFile) {
+        const newPhotoUrl = await this._userService.uploadProfilePhoto(this.selectedFile);
+        finalData.photoUrl = newPhotoUrl;
+      } 
+      // Scenario B: No file selected, but preview is NULL (User removed it)
+      else if (this.previewUrl() === null) {
+        finalData.photoUrl = null;
       }
-      // const profile: UserProfile = this.profileForm.value as UserProfile;
-      // this.profileService.updateUserProfile(profile)
-      //   .then(() => this._snackBar.open('Profile updated successfully!', undefined, { duration: 3000 }))
-      //   .catch(err => this._snackBar.open('Error', 'Dismiss'));
+      // Scenario C: No change (User kept old photo) -> Do not include photoUrl in update
+      // (This prevents overwriting the existing URL with null)
+
+      // 3. Update Profile
+      await this._userService.updateUserProfile(finalData);
+
+      this._snackBar.open('Profile updated successfully!', undefined, { duration: 3000 });
+
+    } catch (err) {
+      console.error(err);
+      this._snackBar.open('Error updating profile', 'Close');
+    } finally {
+      this.loading.set(false);
     }
   }
 }

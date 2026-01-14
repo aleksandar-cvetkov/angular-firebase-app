@@ -19,7 +19,7 @@
 
         @if (isOwner()) {
           <mat-card-actions>
-            <button mat-raised-button color="primary" routerLink="/profile-edit/{{ profile()?.uid }}">
+            <button mat-raised-button color="primary" [routerLink]="'/profile-edit/' + profile()?.uid">
               Уреди профил
             </button>
           </mat-card-actions>
@@ -30,7 +30,7 @@
       }
     </div>
 
-    @if (!currentUser()) {
+    @if (!isLoggedIn()) {
       <div class="col-md-6 navigate-buttons mt-3">
         <button mat-raised-button color="accent" routerLink="/login">
           Sign in

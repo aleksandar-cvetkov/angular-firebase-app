@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../../core/services/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
