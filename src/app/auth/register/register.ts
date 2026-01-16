@@ -10,6 +10,8 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { User } from '@angular/fire/auth';
+import { getFirebaseErrorMessage } from '../../core/utils/firebase-error-mapper';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-register',
@@ -33,6 +35,7 @@ export class Register {
   private _authService = inject(AuthService);
   private _router = inject(Router);
   private _snackBar = inject(MatSnackBar);
+  private _notificationService = inject(NotificationService);
   // registerForm!: FormGroup;
   hide = signal(true);
 
@@ -92,20 +95,15 @@ export class Register {
 
     try {
       await this._authService.register(email, password);
-      this._snackBar.open('Registration successful! Welcome.', 'OK', { duration: 3000 });
+      this._notificationService.showSuccess('Registration successful! Welcome.');
+      // this._snackBar.open('Registration successful! Welcome.', 'OK', { duration: 3000 });
       // The effect above will handle the navigation automatically
     } catch (err: any) {
-      console.error(err);
+      // console.error(err);
+
+      const userMasg = getFirebaseErrorMessage(err);
+      this._notificationService.showError(userMasg);
       
-      // Better error handling for users
-      let message = 'Registration failed.';
-      if (err.code === 'auth/email-already-in-use') {
-        message = 'That email is already registered.';
-      } else if (err.code === 'auth/weak-password') {
-        message = 'Password is too weak.';
-      }
-      
-      this._snackBar.open(message, 'Dismiss');
     } finally {
       // Stop loading state regardless of success/error
       this.isSubmitting.set(false);

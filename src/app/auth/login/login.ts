@@ -10,6 +10,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { User } from '@angular/fire/auth';
+import { NotificationService } from '../../core/services/notification.service';
+import { getFirebaseErrorMessage } from '../../core/utils/firebase-error-mapper';
 
 @Component({
   selector: 'app-login',
@@ -33,6 +35,7 @@ export class Login {
   private _authService = inject(AuthService);
   private _router = inject(Router);
   private _snackBar = inject(MatSnackBar);
+  private _notificationService = inject(NotificationService)
 
   // Signals for UI state
   hidePassword = signal(true);
@@ -76,9 +79,10 @@ export class Login {
     
     try {
       await this._authService.login(email, password);
-      this._snackBar.open('Login is successful', undefined, { duration: 3000 });
+      this._notificationService.showSuccess('Login is successful');
     } catch (err: any) {
-      this._snackBar.open('Error', 'Dismiss');
+      const userMasg = getFirebaseErrorMessage(err);
+      this._notificationService.showError(userMasg);
     } finally {
       this.isSubmitting.set(false);
     }
