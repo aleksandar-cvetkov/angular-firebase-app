@@ -76,3 +76,32 @@ body {
     width: 150px;
   }
 }
+
+// Error Snackbar
+.error-snackbar {
+  // This targets the actual background surface
+  .mdc-snackbar__surface {
+    background-color: #f44336 !important;
+  }
+  // This targets the text color
+  .mdc-snackbar__label {
+    color: white !important;
+  }
+  // This targets the "Close" button color
+  .mat-mdc-snack-bar-action {
+    color: white !important;
+  }
+}
+
+// Success Snackbar
+.success-snackbar {
+  .mdc-snackbar__surface {
+    background-color: #4caf50 !important;
+  }
+  .mdc-snackbar__label {
+    color: white !important;
+  }
+  .mat-mdc-snack-bar-action {
+    color: white !important;
+  }
+}
