@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -7,6 +7,8 @@ import { MatInputModule } from '@angular/material/input';
 import { AuthService } from '../../core/services/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, RouterModule } from '@angular/router';
+import { NotificationService } from '../../core/services/notification.service';
+import { getFirebaseErrorMessage } from '../../core/utils/firebase-error-mapper';
 
 @Component({
   selector: 'app-forgot-password',
@@ -18,24 +20,32 @@ import { Router, RouterModule } from '@angular/router';
 export class ForgotPassword {
   private _fb = inject(FormBuilder);
   private _authService = inject(AuthService);
-  private _snackBar = inject(MatSnackBar);
-  forgotForm!: FormGroup;  
+  private _notificationService = inject(NotificationService);
 
-  constructor() {
-    this.forgotForm = this._fb.group({
-      email: ['', [Validators.required, Validators.email]]
-    });
-  }
+  // 1. Loading state signal
+  isSubmitting = signal(false);
+
+  // 2. Moder Non-Nullable Form
+  forgotForm = this._fb.nonNullable.group({
+    email: ['', [Validators.required, Validators.email]]
+  });
 
   async onSubmit() {
-    if (this.forgotForm.valid) {
-      console.log(this.forgotForm.value);
-      try {
-        await this._authService.forgotPassword(this.forgotForm.get('email')?.value);
-        this._snackBar.open('Reset password email sent. Check your inbox.', undefined, { duration: 3000 });
-      } catch (err: any) {
-        this._snackBar.open('Error', 'Dismiss');
-      }
+    if (this.forgotForm.invalid) return;
+
+    this.isSubmitting.set(true);
+    const { email } = this.forgotForm.getRawValue();
+
+    try {
+      await this._authService.forgotPassword(email);
+      this._notificationService.showSuccess('Reset password email sent. Please check your inbox.');
+    } catch (err: any) {
+      const userMasg = getFirebaseErrorMessage(err);
+      this._notificationService.showError(userMasg);
+      // Optional: disable form after success to prevent double sends
+      this.forgotForm.disable();
+    } finally {
+      this.isSubmitting.set(false);
     }
   }
 }
