@@ -48,7 +48,7 @@ export class ResetPassword {
   // 2. Form with Custom "Match" Validator
   resetPassForm = this._fb.nonNullable.group({
     password: ['', [Validators.required, Validators.minLength(8)]],
-    confirmPassword: ['', Validators.required]
+    confirmPassword: ['', [Validators.required]]
   }, { validators: this.passwordsMatchValidator });
 
   // constructor() {
