@@ -12,14 +12,23 @@ import { GlobalErrorHandler } from './core/errors/global-error-handler';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    // Оптимизација на Zone.js за подобри перформанси
+    provideZoneChangeDetection({ eventCoalescing: true }),
+
+    // Поставување на рутирањето со поддршка за влезни врски на компоненти
     provideRouter(routes, withComponentInputBinding()),
+    
+    // Овозможување на Material Design анимации
+    provideAnimations(),
+
+    // Иницијализација на Firebase модулите
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
     provideAuth(() => getAuth()),
     provideFirestore(() => getFirestore()),
     provideStorage(() => getStorage()),
-    provideAnimations(),
+
+    // Глобална обработка на грешки
     provideBrowserGlobalErrorListeners(),
-    provideZoneChangeDetection({ eventCoalescing: true }),
     { provide: ErrorHandler, useClass: GlobalErrorHandler }
   ]
 };

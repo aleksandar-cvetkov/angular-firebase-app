@@ -1,12 +1,7 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Auth, confirmPasswordReset, createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithEmailAndPassword, signOut, user, User, verifyPasswordResetCode } from '@angular/fire/auth';
+import { Auth, confirmPasswordReset, createUserWithEmailAndPassword, sendPasswordResetEmail, signInWithEmailAndPassword, signOut, user, verifyPasswordResetCode } from '@angular/fire/auth';
 import { doc, Firestore, setDoc } from '@angular/fire/firestore';
-import { Router } from '@angular/router';
-import { onAuthStateChanged } from 'firebase/auth';
-// import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { authState } from 'rxfire/auth';
-import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -14,65 +9,59 @@ import { Observable } from 'rxjs';
 export class AuthService {
   private _auth: Auth = inject(Auth);
   private _firestore = inject(Firestore);
-  // private _currentUser = signal<User | null>(null);
 
-  // 1. Modern Signal initialization
-  // Automatically listens to auth state changes and updates the signal
+  /**
+   * currentUser е сигнал кој ја рефлектира моменталната состојба на автентикација.
+   * Се користи функцијата 'user' од @angular/fire која враќа Observable,
+   * а потоа со 'toSignal' се конвертира во сигнал за полесна употреба во компонентите.
+   */
   public currentUserSignal = toSignal(user(this._auth), { initialValue: null });
-  /** ✅ Signal кој секогаш ја има моменталната состојба на најавениот корисник */
-  // currentUserSignal = this._currentUser.asReadonly();
 
-  // constructor() {
-  //   // слушаме промени на auth state
-  //   onAuthStateChanged(this._auth, (user) => {
-  //     this._currentUser.set(user);
-  //   });
-  // }
-
-  // 2. Updated Register logic
+  // Метод за регистрација на нов корисник
   async register(email: string, password: string) {
-    // A. Create the Auth Account
+    // A. Искреирај кориснички акаунт
     const credentials = await createUserWithEmailAndPassword(this._auth, email, password);
 
-    // B. Create the initial Firestore Document
-    // This ensures UserService.currentUserProfile() has data immediately!
+    // B. Искреирај почетен документ во Firestore
+    // Ова ќе се погрижи UserService.currentUserProfile() да има податоци веднаш!
     const userDocRef = doc(this._firestore, `users/${credentials.user.uid}`);
     await setDoc(userDocRef, {
       uid: credentials.user.uid,
       email: email,
       createdAt: new Date().toISOString(),
-      // Add default values if necessary
+      // Додади дифолтни вредности ако е потребно
       firstName: '',
       lastName: ''
     });
 
     return credentials.user;
-
-    // return createUserWithEmailAndPassword(this._auth, email, password);
   }
 
+  // Метод за најава на постоечки корисник
   async login(email: string, password: string) {
     const userCredential = await signInWithEmailAndPassword(this._auth, email, password);
     return userCredential.user;
   }
 
+  // Испрати имејл за ресетирање на лозинка
   async forgotPassword(email: string): Promise<void> {
     return sendPasswordResetEmail(this._auth, email, {
-      url: 'http://localhost:4200/reset-password', // redirect URL
+      url: 'http://localhost:4200/reset-password', // URL за враќање по ресетирање
       handleCodeInApp: true // важно за сопствена страница
     });
   }
 
-  // Verify reset code (линкот од email)
+  // Верификувај го кодот за ресетирање (линкот од имејл)
   async verifyResetCode(code: string): Promise<string> {
     return await verifyPasswordResetCode(this._auth, code);
   }
 
-  // Set new password
+  // Постави нова лозинка
   async resetPassword(code: string, newPassword: string): Promise<void> {
     return await confirmPasswordReset(this._auth, code, newPassword);
   }
 
+  // Метод за одјавување на корисник
   async logout(): Promise<void> {
     return signOut(this._auth);
   }

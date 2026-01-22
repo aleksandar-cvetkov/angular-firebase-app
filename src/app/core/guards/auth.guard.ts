@@ -12,7 +12,7 @@ export const authGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // We use the signal directly for a sync check
+  // Користење на сигналот директно за инстантна проверка
   return authService.currentUserSignal() 
     ? true 
     : router.createUrlTree(['/login']);
@@ -27,7 +27,7 @@ export const redirectLoggedInGuard: CanActivateFn = () => {
   
   const user = authService.currentUserSignal();
 
-  // If logged in, send them to their profile, else let them see Login
+  // Ако е веќе најавен, пренасочи го директно на неговиот профил
   return user 
     ? router.createUrlTree(['/profile', user.uid]) 
     : true;
@@ -43,12 +43,12 @@ export const canEditProfileGuard: CanActivateFn = (route) => {
   const user = authService.currentUserSignal();
   const routeId = route.paramMap.get('id');
 
-  // Verify ID match
+  // Проверка: Дали најавениот корисник е ист со корисникот во URL-то?
   if (user && user.uid === routeId) {
     return true;
   }
 
-  // If it's not their profile, send them back to the view-only version
+  // Ако не е сопственик, врати го на преглед (read-only)
   return router.createUrlTree(['/profile', routeId]);
 };
 

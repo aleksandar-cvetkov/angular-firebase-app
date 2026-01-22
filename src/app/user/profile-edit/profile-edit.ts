@@ -63,12 +63,12 @@ export class ProfileEdit {
       }
     });
 
-    // Reactively updates the form when the user profile data loads
+    // Реактивно ја ажурира формата кога се вчитуваат податоците за корисничкиот профил
     effect(() => {
       const profile = this.userProfile;
 
       if (profile) {
-        // patchValue updates the form fields that match the profile object keys
+        // patchValue ги ажурира полињата на формата кои одговараат на клучевите од објектот profile
         this.profileForm.patchValue({
           firstName: profile.firstName,
           lastName: profile.lastName,
@@ -76,9 +76,9 @@ export class ProfileEdit {
           bio: profile.bio,
           location: profile.location,
           photoUrl: profile.photoUrl
-        }, { emitEvent: false }); // Prevent triggering valueChanges listeners if you have any
+        }, { emitEvent: false }); // Оневозможи активирање на слушателите на valueChanges ако ги имаш
 
-        // Set the local preview signal
+        // Постави ја локалната preview слика
         this.previewUrl.set(profile.photoUrl || null);
       }
     });
