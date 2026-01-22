@@ -11,33 +11,36 @@ import { getDoc } from 'firebase/firestore';
   providedIn: 'root'
 })
 export class UserService {
-  // Inject the modular Firestore and Auth services
+  // Инјектирање на модуларните Firestore и Auth сервиси
   private _firestore = inject(Firestore);
   private _auth = inject(Auth);
   private _storage = inject(Storage);
 
-  // 1. THE PIPELINE (Internal)
-  // We use RxJS here because we are coordinating two real-time streams.
+  // src/app/core/services/user.service.ts (Клучна логика)
+
+  // 1. Внатрешен тек (Internal Pipeline)
+  // Се користи RxJS за координација на два стрима во реално време.
   private userProfile$ = user(this._auth).pipe(
     switchMap((u) => {
-      // Logic: If user exists, connect to their Firestore document live stream
+      // Доколку корисникот е најавен, поврзи се со неговиот документ во Firestore
       if (u) {
+        // docData враќа Observable кој емитува нова вредност при секоја промена во базата
         return docData(doc(this._firestore, `users/${u.uid}`)) as Observable<UserProfile>;
       }
-      // Logic: If no user, return null
+      // Доколку нема најавен корисник, врати празна вредност
       return of(null); 
     })
   );
 
-  // 2. THE OUTPUT (Public)
-  // We convert the stream to a Signal for the components to consume easily.
-  // This satisfies the "Signal-based Component" requirement.
+  // 2. Јавен излез (Public Signal)
+  // Стримот се конвертира во Сигнал за компонентите да го конзумираат на наједноставен начин.
+  // Ова го задоволува барањето за "Компонента базирана на Сигнали".
   public currentUserProfile = toSignal(this.userProfile$, { initialValue: undefined });
 
-  // Create / update profile
+  // Метод за ажурирање на профилот на тековниот корисник
   async updateUserProfile(profile: Partial<UserProfile>): Promise<void> {
     const user = this._auth.currentUser;
-    if (!user) throw new Error('No logged in user');
+    if (!user) throw new Error('Нема најавен корисник!');
 
     const userRef = doc(this._firestore, `users/${user.uid}`);
     return setDoc(userRef, profile, { merge: true });
@@ -50,10 +53,15 @@ export class UserService {
 
   async uploadProfilePhoto(file: File): Promise<string> {
     const user = this._auth.currentUser;
-    if (!user) throw new Error('No logged in user');
+    if (!user) throw new Error('Нема најавен корисник!');
 
+    // Креирање референца до патеката во Storage
     const fileRef = ref(this._storage, `profilePhotos/${user.uid}/${file.name}`);
+
+    // Прикачување на бинарните податоци
     await uploadBytes(fileRef, file);
+
+    // Преземање на јавниот URL за приказ
     return await getDownloadURL(fileRef);
   }
 }

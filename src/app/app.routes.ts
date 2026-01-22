@@ -10,6 +10,7 @@ export const routes: Routes = [
     {
         path: 'login',
         loadComponent: () => import('./auth/login/login').then(m => m.Login),
+        // Не дозволувај пристап ако е веќе најавен
         canActivate: [redirectLoggedInGuard]
     },
     {
@@ -29,15 +30,19 @@ export const routes: Routes = [
     },
     {
         path: 'profile/:id',
+        // Јавен пристап (нема guards) - секој може да гледа профили
         loadComponent: () => import('./user/profile-view/profile-view').then(m => m.ProfileView)
     },
     {
         path: 'profile-edit/:id',
         loadComponent: () => import('./user/profile-edit/profile-edit').then(m => m.ProfileEdit),
+        // ДВОЈНА ЗАШТИТА:
+        // 1. Мора да е најавен (authGuard)
+        // 2. Мора да е сопственик на профилот (canEditProfileGuard)
         canActivate: [authGuard, canEditProfileGuard]
     },
     {
-        path: '**',
+        path: '**', // Wildcard рута за непостоечки страници
         redirectTo: 'login'
     }
 ];

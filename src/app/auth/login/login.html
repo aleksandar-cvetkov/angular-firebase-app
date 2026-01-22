@@ -1,14 +1,14 @@
 <div class="d-flex justify-content-center mt-5">
     <mat-card class="p-4" style="width: 400px;">
-        <h2 class="mb-3 text-center">Login</h2>
+        <h2 class="mb-4 text-center">Најава на корисник</h2>
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
             <mat-form-field appearance="outline" class="w-100 mb-3">
-                <mat-label>Email</mat-label>
+                <mat-label>имејл</mat-label>
                 <input matInput formControlName="email" type="email" required>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="w-100 mb-3">
-                <mat-label>Password</mat-label>
+                <mat-label>лозинка</mat-label>
                 <input matInput formControlName="password" [type]="hidePassword() ? 'password' : 'text'" required>
                 <button matIconButton matSuffix type="button" (click)="togglePassword()" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword()">
                     <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
@@ -16,15 +16,15 @@
             </mat-form-field>
 
             <button mat-raised-button color="primary" class="w-100" type="submit" [disabled]="loginForm.invalid || isSubmitting()">
-                Sign In
+                Најави се
             </button>
 
             <div class="row">
                 <div class="col">
-                    <button matButton type="button" color="primary" class="w-100 mt-2" routerLink="/register">Create new account</button>
+                    <button matButton type="button" color="primary" class="w-100 mt-2 p-0" routerLink="/register">Креирај нов корисник</button>
                 </div>
                 <div class="col">
-                    <button matButton type="button" color="primary" class="w-100 mt-2" routerLink="/forgot-password">Forgotten password?</button>
+                    <button matButton type="button" color="primary" class="w-100 mt-2 p-0" routerLink="/forgot-password">Заборавена лозинка?</button>
                 </div>
             </div>
         </form>
