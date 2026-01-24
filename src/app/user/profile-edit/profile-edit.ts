@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, signal } from '@angular/core';
-import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, effect, inject, signal, ViewChild } from '@angular/core';
+import { AbstractControl, FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserService } from '../../core/services/user.service';
 import { UserProfile } from '../../core/interface/user-profile.interface';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -9,9 +9,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { User } from '@angular/fire/auth';
 import { AuthService } from '../../core/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { NotificationService } from '../../core/services/notification.service';
+import { ConfirmPasswordMatcher } from '../../core/utils/error-state-matcher';
 
 @Component({
   selector: 'app-profile-edit',
@@ -23,7 +26,8 @@ import { ActivatedRoute, Router } from '@angular/router';
     MatInputModule,
     MatCardModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatExpansionModule
   ],
   templateUrl: './profile-edit.html',
   styleUrl: './profile-edit.scss'
@@ -35,11 +39,13 @@ export class ProfileEdit {
   private _authService = inject(AuthService);
   private _router = inject(Router);
   private _activatedRoute = inject(ActivatedRoute);
+  private _notificationService = inject(NotificationService);
 
   selectedFile?: File;
   previewUrl = signal<string | null>(null); // ќе ја држи локалната preview слика
   loading = signal(false);
 
+  // Форма за уредување на профил
   profileForm = this._fb.group({
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
@@ -48,6 +54,25 @@ export class ProfileEdit {
     location: [''],
     photoUrl: [''],
   });
+
+  // Форма за промена на лозинка
+  @ViewChild('passwordFormDirective') passwordFormDirective!: FormGroupDirective;
+  
+  confirmMatcher = new ConfirmPasswordMatcher();
+
+  passwordForm = this._fb.group({
+    newPassword: ['', [Validators.required, Validators.minLength(8)]],
+    confirmPassword: ['', [Validators.required]]
+  }, { validators: this.passwordMatchValidator, updateOn: 'change' });
+
+  // Validator за споредба на лозинките
+  passwordMatchValidator(g: AbstractControl) {
+    const pass = g.get('newPassword')?.value;
+    const confirm = g.get('confirmPassword')?.value;
+
+    // Враќаме 'mismatch' грешка на ниво на форма
+    return pass === confirm ? null : { mismatch: true };
+  }
 
   userProfile = this._userService.currentUserProfile();
 
@@ -123,7 +148,7 @@ export class ProfileEdit {
       if (this.selectedFile) {
         const newPhotoUrl = await this._userService.uploadProfilePhoto(this.selectedFile);
         finalData.photoUrl = newPhotoUrl;
-      } 
+      }
       // Scenario B: No file selected, but preview is NULL (User removed it)
       else if (this.previewUrl() === null) {
         finalData.photoUrl = null;
@@ -139,6 +164,23 @@ export class ProfileEdit {
     } catch (err) {
       console.error(err);
       this._snackBar.open('Error updating profile', 'Close');
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  async onChangePassword() {
+    if (this.passwordForm.invalid) return;
+    this.loading.set(true);
+
+    try {
+      const newPass = this.passwordForm.value.newPassword!;
+      await this._userService.changePassword(newPass);
+      this._notificationService.showSuccess('Лозинката е успешно променета!');
+      this.passwordForm.reset(); // Ресетирај ги контролите на формата
+      setTimeout(() => this.passwordFormDirective.resetForm(), 0); // Ресетирај ја формата во UI
+    } catch (err: any) {
+      this._notificationService.showError('Грешка: Потребна е повторна најава за оваа операција.');
     } finally {
       this.loading.set(false);
     }

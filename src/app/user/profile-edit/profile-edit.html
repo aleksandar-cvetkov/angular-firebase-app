@@ -1,4 +1,4 @@
-<div class="container mt-4">
+<div class="profile-edit-container mb-3">
     <mat-card class="p-4">
         <h2 class="mb-4">Уреди профил</h2>
         <form [formGroup]="profileForm" (ngSubmit)="onSave()">
@@ -46,23 +46,54 @@
                     <label for="photo" class="form-label">Профилна слика</label>
                     <!-- Preview слика -->
                     @if (previewUrl()) {
-                        <div class="mt-3 preview-img">
-                            <button matIconButton type="button" (click)="onRemovePhoto()">
-                                <mat-icon>close</mat-icon>
-                            </button>
-                            <img [src]="previewUrl()" alt="Preview" class="img-thumbnail" style="max-width: 200px;">
-                        </div>
+                    <div class="mt-3 preview-img">
+                        <button matIconButton type="button" (click)="onRemovePhoto()">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                        <img [src]="previewUrl()" alt="Preview" class="img-thumbnail" style="max-width: 200px;">
+                    </div>
                     } @else {
-                        <input type="file" class="form-control" (change)="onFileSelected($event)">
+                    <input type="file" class="form-control" (change)="onFileSelected($event)">
                     }
                 </div>
             </div>
 
             <div class="mt-3 d-flex justify-content-center">
-                <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid || profileForm.pristine">
+                <button mat-raised-button color="primary" type="submit"
+                    [disabled]="profileForm.invalid || profileForm.pristine">
                     Зачувај промени
                 </button>
             </div>
         </form>
     </mat-card>
+
+    <mat-expansion-panel class="security-section mt-3">
+        <mat-expansion-panel-header>
+            <mat-panel-title>Безбедност и лозинка</mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <form [formGroup]="passwordForm" #passwordFormDirective="ngForm" (ngSubmit)="onChangePassword()">
+            <div class="row align-items-baseline justify-content-center justify-content-sm-start">
+                <mat-form-field appearance="outline" class="col-sm-auto">
+                    <mat-label>Нова лозинка</mat-label>
+                    <input matInput type="password" formControlName="newPassword">
+                    @if (passwordForm.controls.newPassword.hasError('minlength')) {
+                    <mat-error>Лозинката мора да има најмалку 8 карактери</mat-error>
+                    }
+                </mat-form-field>
+    
+                <mat-form-field appearance="outline" class="col-sm-auto">
+                    <mat-label>Потврди лозинка</mat-label>
+                    <input matInput type="password" formControlName="confirmPassword" [errorStateMatcher]="confirmMatcher">
+                    @if (passwordForm.hasError('mismatch') && passwordForm.get('confirmPassword')?.dirty) {
+                    <mat-error>Лозинките не се совпаѓаат</mat-error>
+                    }
+                </mat-form-field>
+    
+                <button mat-flat-button color="accent" class="w-auto" [disabled]="passwordForm.invalid || loading()">
+                    Промени лозинка
+                </button>
+            </div>
+        </form>
+    </mat-expansion-panel>
 </div>

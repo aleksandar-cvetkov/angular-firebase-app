@@ -51,8 +51,9 @@ body {
 }
 
 .menu-holder {
-  position: absolute;
-  right: 200px;
+  // position: absolute;
+  // right: 200px;
+  display: flex;
   z-index: 1;
 
   .menu-button {

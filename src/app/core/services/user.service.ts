@@ -1,7 +1,7 @@
 import { computed, inject, Injectable, Signal } from '@angular/core';
 import { from, map, Observable, of, switchMap } from 'rxjs';
 import { UserProfile } from '../interface/user-profile.interface';
-import { Auth, authState, User as FirebaseUser, user as authObservable, user } from '@angular/fire/auth';
+import { Auth, authState, User as FirebaseUser, user as authObservable, user, updatePassword } from '@angular/fire/auth';
 import { doc, docData, Firestore, setDoc } from '@angular/fire/firestore';
 import { Storage, getDownloadURL, ref, uploadBytes } from '@angular/fire/storage';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -28,7 +28,7 @@ export class UserService {
         return docData(doc(this._firestore, `users/${u.uid}`)) as Observable<UserProfile>;
       }
       // Доколку нема најавен корисник, врати празна вредност
-      return of(null); 
+      return of(null);
     })
   );
 
@@ -63,5 +63,14 @@ export class UserService {
 
     // Преземање на јавниот URL за приказ
     return await getDownloadURL(fileRef);
+  }
+
+  // Метод за промена на лозинката на тековниот корисник
+  async changePassword(newPassword: string) {
+    const user = this._auth.currentUser;
+    if (user) {
+      return updatePassword(user, newPassword);
+    }
+    throw new Error('Нема најавен корисник!');
   }
 }
