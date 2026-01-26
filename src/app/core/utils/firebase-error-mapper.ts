@@ -4,6 +4,7 @@
  * @returns A clean string message in English (or your language)
  */
 export function getFirebaseErrorMessage(error: any): string {
+  console.error('Firebase Error:', error);
   if (!error) return 'An unknown error occurred.';
 
   // If the error has a 'code' property, it's likely from Firebase
@@ -30,6 +31,9 @@ export function getFirebaseErrorMessage(error: any): string {
         
       case 'auth/network-request-failed':
         return 'Network error. Please check your internet connection.';
+
+      case 'auth/requires-recent-login':
+        return 'Please re-authenticate to perform this action.';
 
       // --- Firestore / Permission Errors ---
       case 'permission-denied':

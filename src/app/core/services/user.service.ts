@@ -1,8 +1,8 @@
 import { computed, inject, Injectable, Signal } from '@angular/core';
 import { from, map, Observable, of, switchMap } from 'rxjs';
 import { UserProfile } from '../interface/user-profile.interface';
-import { Auth, authState, User as FirebaseUser, user as authObservable, user, updatePassword } from '@angular/fire/auth';
-import { doc, docData, Firestore, setDoc } from '@angular/fire/firestore';
+import { Auth, authState, User as FirebaseUser, user as authObservable, user, updatePassword, deleteUser } from '@angular/fire/auth';
+import { deleteDoc, doc, docData, Firestore, setDoc } from '@angular/fire/firestore';
 import { Storage, getDownloadURL, ref, uploadBytes } from '@angular/fire/storage';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { getDoc } from 'firebase/firestore';
@@ -72,5 +72,13 @@ export class UserService {
       return updatePassword(user, newPassword);
     }
     throw new Error('Нема најавен корисник!');
+  }
+
+  // Метод за целосно бришење на корисничка сметка
+  async deleteAccount(): Promise<void> {
+    const user = this._auth.currentUser;
+    if (!user) throw new Error('Корисникот не е најавен');
+
+    return deleteUser(user);
   }
 }

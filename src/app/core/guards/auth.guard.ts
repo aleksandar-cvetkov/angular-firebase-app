@@ -43,12 +43,17 @@ export const canEditProfileGuard: CanActivateFn = (route) => {
   const user = authService.currentUserSignal();
   const routeId = route.paramMap.get('id');
 
-  // Проверка: Дали најавениот корисник е ист со корисникот во URL-то?
+  // 1. Ако воопшто нема корисник (избришан или одјавен), прати го на login
+  if (!user) {
+    return router.createUrlTree(['/login']);
+  }
+
+  // 2. Ако е најавен, провери дали е сопственикот
   if (user && user.uid === routeId) {
     return true;
   }
 
-  // Ако не е сопственик, врати го на преглед (read-only)
+  // 3. Ако е најавен друг корисник, врати го на неговиот профил или само преглед
   return router.createUrlTree(['/profile', routeId]);
 };
 

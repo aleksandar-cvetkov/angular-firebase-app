@@ -10,11 +10,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatDividerModule } from '@angular/material/divider';
 import { User } from '@angular/fire/auth';
 import { AuthService } from '../../core/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NotificationService } from '../../core/services/notification.service';
 import { ConfirmPasswordMatcher } from '../../core/utils/error-state-matcher';
+import { getFirebaseErrorMessage } from '../../core/utils/firebase-error-mapper';
 
 @Component({
   selector: 'app-profile-edit',
@@ -27,7 +29,8 @@ import { ConfirmPasswordMatcher } from '../../core/utils/error-state-matcher';
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatDividerModule
   ],
   templateUrl: './profile-edit.html',
   styleUrl: './profile-edit.scss'
@@ -57,7 +60,7 @@ export class ProfileEdit {
 
   // Форма за промена на лозинка
   @ViewChild('passwordFormDirective') passwordFormDirective!: FormGroupDirective;
-  
+
   confirmMatcher = new ConfirmPasswordMatcher();
 
   passwordForm = this._fb.group({
@@ -183,6 +186,23 @@ export class ProfileEdit {
       this._notificationService.showError('Грешка: Потребна е повторна најава за оваа операција.');
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  async onDeleteProfile() {
+    const confirm = window.confirm('Дали сте сигурни дека сакате трајно да го избришете профилот? Оваа акција е неповратна.');
+
+    if (confirm) {
+      this.loading.set(true);
+      try {
+        await this._userService.deleteAccount();
+        this._router.navigate(['/login']);
+      } catch (err: any) {
+        const userMasg = getFirebaseErrorMessage(err);
+        this._notificationService.showError(userMasg);
+      } finally {
+        this.loading.set(false);
+      }
     }
   }
 }
