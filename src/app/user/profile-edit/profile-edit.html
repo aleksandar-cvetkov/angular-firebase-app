@@ -81,19 +81,30 @@
                     <mat-error>Лозинката мора да има најмалку 8 карактери</mat-error>
                     }
                 </mat-form-field>
-    
+
                 <mat-form-field appearance="outline" class="col-sm-auto">
                     <mat-label>Потврди лозинка</mat-label>
-                    <input matInput type="password" formControlName="confirmPassword" [errorStateMatcher]="confirmMatcher">
+                    <input matInput type="password" formControlName="confirmPassword"
+                        [errorStateMatcher]="confirmMatcher">
                     @if (passwordForm.hasError('mismatch') && passwordForm.get('confirmPassword')?.dirty) {
                     <mat-error>Лозинките не се совпаѓаат</mat-error>
                     }
                 </mat-form-field>
-    
+
                 <button mat-flat-button color="accent" class="w-auto" [disabled]="passwordForm.invalid || loading()">
                     Промени лозинка
                 </button>
             </div>
         </form>
+
+        <mat-divider class="my-3"></mat-divider>
+
+        <div class="text-danger">
+            <h4>Опасна зона</h4>
+            <p>Откако ќе го избришете профилот, нема враќање назад. Ве молиме бидете сигурни.</p>
+            <button mat-stroked-button color="warn" (click)='onDeleteProfile()'>
+                Избриши го мојот профил засекогаш
+            </button>
+        </div>
     </mat-expansion-panel>
 </div>

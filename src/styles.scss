@@ -5,9 +5,27 @@
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
+// Define your theme with a warn palette
+// $my-primary: mat.define-palette(mat.$indigo-palette);
+// $my-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+// $my-warn: mat.define-palette(mat.$red-palette); // Ensure a warn palette is defined
+
+// $my-theme: mat.define-light-theme((
+//   color: (
+//     primary: $my-primary,
+//     accent: $my-accent,
+//     warn: $my-warn,
+//   )
+// ));
+
+// // Include the theme and backwards compatibility mixin
+// @include mat.all-component-themes($my-theme);
+// @include mat.color-variants-backwards-compatibility($my-theme); // Important for M3 apps
+
 html {
   @include mat.theme((color: (primary: mat.$azure-palette,
         tertiary: mat.$blue-palette,
+        warn: mat.$red-palette,
       ),
       typography: Roboto,
       density: 0,
@@ -80,14 +98,17 @@ body {
 
 // Error Snackbar
 .error-snackbar {
+
   // This targets the actual background surface
   .mdc-snackbar__surface {
     background-color: #f44336 !important;
   }
+
   // This targets the text color
   .mdc-snackbar__label {
     color: white !important;
   }
+
   // This targets the "Close" button color
   .mat-mdc-snack-bar-action {
     color: white !important;
@@ -99,9 +120,11 @@ body {
   .mdc-snackbar__surface {
     background-color: #4caf50 !important;
   }
+
   .mdc-snackbar__label {
     color: white !important;
   }
+
   .mat-mdc-snack-bar-action {
     color: white !important;
   }
