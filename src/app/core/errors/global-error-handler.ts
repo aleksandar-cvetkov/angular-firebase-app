@@ -8,13 +8,14 @@ export class GlobalErrorHandler  {
     private _zone = inject(NgZone);
 
     handleError(error: any): void {
-        // 1. Log the error for developers
-        console.error('Global Error Caught:', error);
+        // 1. Логирај ја грешката за развивачите
+        // console.error('Global Error Caught:', error);
 
         // 2. Extract a user-friendly message
+        // 2. Извлечи пријателска порака за корисникот
         const message = getFirebaseErrorMessage(error);
 
-        // 3. UI updates must run inside NgZone to ensure the SnackBar shows up
+        // 3. Ажурирањата на корисничкиот интерфејс мора да се извршуваат внатре во NgZone за да се осигура дека SnackBar ќе се прикаже
         this._zone.run(() => {
             this._notificationService.showError(message);
         });

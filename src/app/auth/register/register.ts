@@ -1,12 +1,11 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { AuthService } from '../../core/services/auth.service';
-import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router, RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { User } from '@angular/fire/auth';
@@ -27,38 +26,29 @@ import { NotificationService } from '../../core/services/notification.service';
     RouterModule,
     MatIconModule
   ],
-  templateUrl: './register.html',
-  styleUrl: './register.scss'
+  templateUrl: './register.html'
 })
 export class Register {
   private _fb = inject(FormBuilder);
   private _authService = inject(AuthService);
   private _router = inject(Router);
-  private _snackBar = inject(MatSnackBar);
   private _notificationService = inject(NotificationService);
-  // registerForm!: FormGroup;
   hide = signal(true);
 
-  // 1. UI State Signals
+  // 1. Сигнали за состојбата на корисничкиот интерфејс
   hidePassword = signal(true);
   isSubmitting = signal(false);
 
-  // 2. Modern Form Initialization
-  // using .nonNullable means values are always strings, never null
+  // 2. Модерна инициализација на формата
+  // со користење на .nonNullable значи дека вредностите секогаш се стрингови, никогаш null
   registerForm = this._fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]]
   });
 
   constructor() {
-    // this.registerForm = this._fb.group({
-    //   email: ['', [Validators.required, Validators.email]],
-    //   password: ['', [Validators.required, Validators.minLength(8)]],
-    //   // confirmPassword: ['', Validators.required]
-    // });
-
-    // 3. Reactive Redirection
-    // This effect runs immediately when the component loads and whenever the user signal changes
+    // 3. Реактивна навигација по успешна регистрација
+    // Ако има корисник, навигирај до неговиот профил
     effect(() => {
       const user: User | null = this._authService.currentUserSignal();
       if (user) {
@@ -67,7 +57,7 @@ export class Register {
     });
   }
 
-  // 4. Toggle Visibility
+  // 4. Промени ја видливоста на лозинката
   togglePassword() {
     this.hidePassword.update((val) => !val);
   }
@@ -80,43 +70,23 @@ export class Register {
     return this.registerForm.get('password') as FormControl
   }
 
-  // onHidePassword() {
-  //   this.hide.set(!this.hide());
-  // }
-
   async onSubmit() {
     if (this.registerForm.invalid) return;
 
-    // Start loading state
     this.isSubmitting.set(true);
     
-    // Get raw values (guaranteed to be strings due to nonNullable)
+    // Земи raw вредности (гарантирано се стрингови поради nonNullable)
     const { email, password } = this.registerForm.getRawValue();
 
     try {
       await this._authService.register(email, password);
-      this._notificationService.showSuccess('Registration successful! Welcome.');
-      // this._snackBar.open('Registration successful! Welcome.', 'OK', { duration: 3000 });
-      // The effect above will handle the navigation automatically
+      this._notificationService.showSuccess('Регистрацијата е успешна! Добредојдовте.');
     } catch (err: any) {
-      // console.error(err);
-
       const userMasg = getFirebaseErrorMessage(err);
       this._notificationService.showError(userMasg);
       
     } finally {
-      // Stop loading state regardless of success/error
       this.isSubmitting.set(false);
     }
   }
-    // if (this.registerForm.valid) {
-    //   console.log(this.registerForm.value);
-    //   // TODO: интеграција со Firebase Auth -> createUserWithEmailAndPassword
-    //   try {
-    //     await this._authService.register(this.emailControl.value, this.passwordControl.value);
-    //     this._snackBar.open('Registration is successful.', undefined, { duration: 3000 });
-    //   } catch (err: any) {
-    //     this._snackBar.open('Error', 'Dismiss');
-    //   }
-    // }
 }

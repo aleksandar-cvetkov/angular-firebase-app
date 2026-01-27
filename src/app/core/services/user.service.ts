@@ -1,8 +1,8 @@
-import { computed, inject, Injectable, Signal } from '@angular/core';
-import { from, map, Observable, of, switchMap } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { Observable, of, switchMap } from 'rxjs';
 import { UserProfile } from '../interface/user-profile.interface';
-import { Auth, authState, User as FirebaseUser, user as authObservable, user, updatePassword, deleteUser } from '@angular/fire/auth';
-import { deleteDoc, doc, docData, Firestore, setDoc } from '@angular/fire/firestore';
+import { Auth, user, updatePassword, deleteUser } from '@angular/fire/auth';
+import { doc, docData, Firestore, setDoc } from '@angular/fire/firestore';
 import { Storage, getDownloadURL, ref, uploadBytes } from '@angular/fire/storage';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { getDoc } from 'firebase/firestore';

@@ -8,7 +8,7 @@ export class NotificationService {
   private _snackBar = inject(MatSnackBar);
 
   showError(message: string) {
-    this._snackBar.open(message, 'Close', {
+    this._snackBar.open(message, 'Затвори', {
       duration: 5000,
       panelClass: ['error-snackbar'],
     });

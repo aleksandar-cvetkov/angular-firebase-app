@@ -3,7 +3,6 @@ import { Component, effect, inject, signal, ViewChild } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UserService } from '../../core/services/user.service';
 import { UserProfile } from '../../core/interface/user-profile.interface';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -38,7 +37,6 @@ import { getFirebaseErrorMessage } from '../../core/utils/firebase-error-mapper'
 export class ProfileEdit {
   private _fb = inject(FormBuilder);
   private _userService = inject(UserService);
-  private _snackBar = inject(MatSnackBar);
   private _authService = inject(AuthService);
   private _router = inject(Router);
   private _activatedRoute = inject(ActivatedRoute);
@@ -47,6 +45,7 @@ export class ProfileEdit {
   selectedFile?: File;
   previewUrl = signal<string | null>(null); // ќе ја држи локалната preview слика
   loading = signal(false);
+  private isDeleting = signal(false);
 
   // Форма за уредување на профил
   profileForm = this._fb.group({
@@ -80,12 +79,13 @@ export class ProfileEdit {
   userProfile = this._userService.currentUserProfile();
 
   constructor() {
-    // This effect runs immediately when the component loads and whenever the user signal changes
+    // Овој ефект се активира веднаш штом компонентата се вчитува и секогаш кога сигналот за корисникот се менува
     effect(() => {
       const user: User | null = this._authService.currentUserSignal();
-
-      // Check explicitly for null (logged out), allow undefined (loading)
-      if (user === null) {
+      const deleting = this.isDeleting(); // Следи го и овој сигнал
+      
+      // Експлицитно провери за null (одјавен), дозволи undefined (вчитување)
+      if (user === null && !deleting) {
         const id = this._activatedRoute.snapshot.paramMap.get('id');
         this._router.navigate(['/profile', id]);
       }
@@ -120,13 +120,10 @@ export class ProfileEdit {
       // создавање preview URL
       const reader = new FileReader();
       reader.onload = () => {
-        // this.profileForm.patchValue({ photoUrl: reader.result as string });
         this.previewUrl.set(reader.result as string);
       };
       reader.readAsDataURL(this.selectedFile);
       this.profileForm.markAsDirty();
-
-      console.log('this.selectedFile ==>> ', this.selectedFile)
     }
   }
 
@@ -135,43 +132,46 @@ export class ProfileEdit {
     this.profileForm.markAsDirty();
   }
 
+  // Метод за зачувување на измените во профилотß
   async onSave() {
     if (this.profileForm.invalid) return;
 
     this.loading.set(true);
 
     try {
-      // 1. Prepare Base Data
-      // Exclude photoUrl from the raw form value initially
+      // 1. Подготви ги основните податоци
+      // Исклучи го photoUrl од суровата вредност на формата првично
       const { photoUrl, ...formData } = this.profileForm.value;
       let finalData: Partial<UserProfile> = { ...formData };
 
-      // 2. Handle Image Logic
-      // Scenario A: New file selected -> Upload it
+      // 2. Обработка на логиката за слика
+      // Сценарио A: Избрана е нова датотека -> Прикачи ја
       if (this.selectedFile) {
         const newPhotoUrl = await this._userService.uploadProfilePhoto(this.selectedFile);
         finalData.photoUrl = newPhotoUrl;
       }
-      // Scenario B: No file selected, but preview is NULL (User removed it)
+      // Сценарио Б: Не е избрана датотека, но preview е NULL (корисникот ја отстрани)
       else if (this.previewUrl() === null) {
         finalData.photoUrl = null;
       }
-      // Scenario C: No change (User kept old photo) -> Do not include photoUrl in update
-      // (This prevents overwriting the existing URL with null)
+      // Сценарио В: Без промена (корисникот ја задржа старата слика) -> Не го вклучувај photoUrl во ажурирањето
+      // (Ова спречува препишување на постојниот URL со null)
 
-      // 3. Update Profile
+      // 3. Ажурирај го профилот со финалните податоци
       await this._userService.updateUserProfile(finalData);
 
-      this._snackBar.open('Profile updated successfully!', undefined, { duration: 3000 });
+      this._notificationService.showSuccess('Профилот е успешно ажуриран!');
+      this.profileForm.markAsPristine(); // Означи ја формата како непроменета по успешното зачувување
 
-    } catch (err) {
-      console.error(err);
-      this._snackBar.open('Error updating profile', 'Close');
+    } catch (err: any) {
+      const userMsg = getFirebaseErrorMessage(err);
+      this._notificationService.showError(userMsg);
     } finally {
       this.loading.set(false);
     }
   }
 
+  // Метод за промена на лозинка
   async onChangePassword() {
     if (this.passwordForm.invalid) return;
     this.loading.set(true);
@@ -189,15 +189,19 @@ export class ProfileEdit {
     }
   }
 
+  // Метод за бришење на кориснички профил
   async onDeleteProfile() {
     const confirm = window.confirm('Дали сте сигурни дека сакате трајно да го избришете профилот? Оваа акција е неповратна.');
 
     if (confirm) {
+      this.isDeleting.set(true);
       this.loading.set(true);
       try {
         await this._userService.deleteAccount();
-        this._router.navigate(['/login']);
+        await this._authService.logout();
+        await this._router.navigate(['/login'], { replaceUrl: true });
       } catch (err: any) {
+        this.isDeleting.set(false);
         const userMasg = getFirebaseErrorMessage(err);
         this._notificationService.showError(userMasg);
       } finally {

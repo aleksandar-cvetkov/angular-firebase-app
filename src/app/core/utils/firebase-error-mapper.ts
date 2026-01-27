@@ -5,49 +5,49 @@
  */
 export function getFirebaseErrorMessage(error: any): string {
   console.error('Firebase Error:', error);
-  if (!error) return 'An unknown error occurred.';
+  if (!error) return 'Се случи непозната грешка.';
 
   // If the error has a 'code' property, it's likely from Firebase
   if (error.code) {
     switch (error.code) {
       // --- Authentication Errors ---
       case 'auth/email-already-in-use':
-        return 'This email is already registered. Please login instead.';
+        return 'Оваа имејл адреса е веќе регистрирана. Ве молиме најавете се.';
       
       case 'auth/invalid-email':
-        return 'The email address is not valid.';
+        return 'Имејл адресата не е валидна.';
       
       case 'auth/user-not-found':
       case 'auth/wrong-password':
       case 'auth/invalid-credential':
-        // SECURITY NOTE: Never tell the user exactly which one failed.
-        return 'Invalid email or password.';
+        // Безбедносна напомена: Никогаш не кажувајте му на корисникот точно кој дел не успеал.
+        return 'Невалиден имејл или лозинка.';
       
       case 'auth/weak-password':
-        return 'Password should be at least 6 characters.';
+        return 'Лозинката треба да има најмалку 8 карактери.';
       
       case 'auth/too-many-requests':
-        return 'Too many failed attempts. Please try again later.';
+        return 'Премногу неуспешни обиди. Ве молиме обидете се повторно подоцна.';
         
       case 'auth/network-request-failed':
-        return 'Network error. Please check your internet connection.';
+        return 'Грешка во мрежата. Ве молиме проверете ја вашата интернет конекција.';
 
       case 'auth/requires-recent-login':
-        return 'Please re-authenticate to perform this action.';
+        return 'Ве молиме повторно најавете се за да ја извршите оваа акција.';
 
       // --- Firestore / Permission Errors ---
       case 'permission-denied':
-        return 'You do not have permission to perform this action.';
+        return 'Немате дозвола за извршување на оваа акција.';
         
       case 'unavailable':
-        return ' The service is temporarily unavailable. Please try again.';
+        return ' Сервисот е привремено недостапен. Ве молиме обидете се повторно.';
         
       default:
-        // Return the raw code if we haven't mapped it yet (good for debugging)
+        // Врати го суровиот код ако сè уште не сме го мапирале (добро за дебагирање)
         return `Error: ${error.code}`;
     }
   }
 
-  // Fallback for non-Firebase errors (standard JS errors)
-  return error.message || 'An unexpected error occurred.';
+  // Fallback за не-Firebase грешки (стандардни JS грешки)
+  return error.message || 'Се случи непозната грешка.';
 }
