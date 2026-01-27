@@ -1,8 +1,7 @@
 import { Component, inject, input, signal } from '@angular/core';
-import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { AbstractControl, FormBuilder, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -23,22 +22,16 @@ import { getFirebaseErrorMessage } from '../../core/utils/firebase-error-mapper'
     MatButtonModule,
     MatCardModule
   ],
-  templateUrl: './reset-password.html',
-  styleUrl: './reset-password.scss'
+  templateUrl: './reset-password.html'
 })
 export class ResetPassword {
   private _fb = inject(FormBuilder);
   private _authService = inject(AuthService);
   private _router = inject(Router);
   private _notificationService = inject(NotificationService);
-  private _route = inject(ActivatedRoute);
-  private _snackBar = inject(MatSnackBar);
-  // resetPassForm!: FormGroup;
-  // oobCode!: string;
-  // verifiedEmail: string = '';
 
-  // 1. Automatic Query Param Binding
-  // This signal will automatically contain the 'oobCode' from the URL
+  // 1. Автоматско поврзување на параметрите од URL
+  // Овој сигнал автоматски ќе го содржи 'oobCode' од URL-то
   oobCode = input<string | null>(null, { alias: 'oobCode' });
 
   verifiedEmail = signal('');
@@ -51,45 +44,32 @@ export class ResetPassword {
     confirmPassword: ['', [Validators.required]]
   }, { validators: this.passwordsMatchValidator });
 
-  // constructor() {
-  //   this.resetPassForm = this._fb.group({
-  //     password: ['', [Validators.required, Validators.minLength(6)]],
-  //     confirmPassword: ['', Validators.required]
-  //   });
-  // }
-
   ngOnInit() {
     const code = this.oobCode();
     if (!code) {
-      this._notificationService.showError('No reset code found.');
+      this._notificationService.showError('Не е пронајден код за ресетирање.');
       this._router.navigate(['/login']);
       return;
     }
 
-    // Verify the code immediately
+    // Верифицирај го кодот веднаш
     this._authService.verifyResetCode(code)
       .then(email => {
         this.verifiedEmail.set(email);
         this.isValidatingCode.set(false);
       })
       .catch((err) => {
-        this._notificationService.showError('Invalid or expired reset link.');
+        this._notificationService.showError('Невалиден или истечен линк за ресетирање.');
         this._router.navigate(['/login']);
       });
   }
 
-  // 3. Custom Validator Logic
+  // 3. Валидациска логика за совпаѓање на лозинки
   passwordsMatchValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.get('password');
     const confirm = control.get('confirmPassword');
     return password && confirm && password.value !== confirm.value ? {mismatch: true} : null;
   }
-    // this.oobCode = this._route.snapshot.queryParamMap.get('oobCode')!;
-    // if (this.oobCode) {
-    //   this._authService.verifyResetCode(this.oobCode)
-    //     .then(email => this.verifiedEmail = email)
-    //     .catch(() => this._snackBar.open('Invalid or expired reset link.', 'Dismiss'));
-    // }
 
   async onSubmit() {
     const code = this.oobCode();
@@ -100,9 +80,9 @@ export class ResetPassword {
     
     try {
       await this._authService.resetPassword(code, password);
-      // Logout to clear any stale sessions
+      // Одјави се за да се исчистат сите застарени сесии
       await this._authService.logout(); 
-      this._notificationService.showSuccess('Password has been reset. Please log in with your new password.');
+      this._notificationService.showSuccess('Лозинката е ресетирана. Ве молиме најавете се со новата лозинка.');
       this._router.navigate(['/login']);
     } catch (err: any) {
       const errorMsg = getFirebaseErrorMessage(err);
@@ -110,15 +90,5 @@ export class ResetPassword {
     } finally {
       this.isSubmitting.set(false);
     }
-
-    // if (this.resetPassForm.valid) {
-    //   this._authService.resetPassword(this.oobCode, this.resetPassForm.get('password')?.value)
-    //     .then(() => {
-    //       this._authService.logout();
-    //       this._snackBar.open('Password has been reset.', undefined, { duration: 3000 });
-    //       this._router.navigate(['/login']);
-    //     })
-    //     .catch(err => this._snackBar.open(err.message, 'Dismiss'));
-    // }
   }
 }

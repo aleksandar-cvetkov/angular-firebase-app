@@ -8,53 +8,31 @@ import { UserService } from '../../services/user.service';
 @Component({
   selector: 'app-nav-menu',
   imports: [MatMenuModule, MatButtonModule, RouterModule],
-  templateUrl: './nav-menu.html',
-  styleUrl: './nav-menu.scss'
+  templateUrl: './nav-menu.html'
 })
 export class NavMenu {
   private _authService = inject(AuthService);
   private _router = inject(Router);
   public _userService = inject(UserService);
 
-  // 1. Source of Truth: The Rich Profile
-  // We use the signal from UserService. This updates automatically if Firestore changes.
+  // 1. Профил на корисникот
+  // Го користиме сигналот од UserService. Овој се ажурира автоматски ако има промени во Firestore.
   profile = this._userService.currentUserProfile;
 
-  // 2. Computed Display Name
-  // Priority: Profile Name -> Auth Display Name -> Email -> 'User'
+  // 2. Пресметано име за прикажување
+  // Приоритет: Име од профилот -> Прикажано име од Auth -> Емаил -> 'User'
   displayName = computed(() => {
     const p = this.profile();
     if (!p) return '';
     
-    // Assuming your UserProfile interface has firstName/lastName
+    // Претпоставаме дека вашиот UserProfile интерфејс има firstName/lastName
     if (p.firstName) return `${p.firstName} ${p.lastName || ''}`;
     
     return p.email || 'User';
   });
 
-  // 3. Logout
+  // 3. Одјави се
   logout() {
     this._authService.logout();
-    // Optional: Navigate to home/login after logout if the service doesn't do it
   }
-
-  // user = this._authService.currentUserSignal;
-
-  // userId = computed(() => this.user()?.uid);
-  // userEmail = computed(() => this.user()?.email);
-  // userName = computed(() => this.user()?.displayName || '' );
-
-  // goToProfile() {
-  //   if (!this.userId()) return;
-  //   this._router.navigate(['profile', this.userId()]);
-  // }
-
-  // goToEditProfile() {
-  //   if (!this.userId()) return;
-  //   this._router.navigate(['profile-edit', this.userId()]);
-  // }
-
-  // logout() {
-  //   this._authService.logout();
-  // }
 }

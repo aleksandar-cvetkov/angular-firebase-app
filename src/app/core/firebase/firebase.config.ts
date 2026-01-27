@@ -1,5 +1,5 @@
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Конфигурација на Firebase за апликацијата
+// За Firebase JS SDK верзија 7.20.0 и понова, measurementId е опционален
 export const firebaseConfig = {
     apiKey: "AIzaSyAl20ZCCzIEZVYQGZxnl9_PNdNT3lyrNNs",
     authDomain: "angular-firebase-app-ce2c0.firebaseapp.com",

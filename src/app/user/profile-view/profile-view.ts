@@ -26,13 +26,13 @@ export class ProfileView {
 
   currentUser = this._authService.currentUserSignal;
 
-  // 1. Route Param as Signal Input
-  // Automatically receives the 'id' from the route path (e.g., /profile/:id)
-  // Requires provideRouter(routes, withComponentInputBinding())
+  // 1. Параметарот од рутата како сигнален влез
+  // Автоматски го добива 'id' од патеката на рутата (на пр., /profile/:id)
+  // Потребно е да се користи provideRouter(routes, withComponentInputBinding())
   id = input<string>();
 
-  // 2. Resource (The modern replacement for switchMap)
-  // Automatically triggers the loader whenever the 'request' signal (this.id) changes.
+  // 2. Resource (Модерна замена за switchMap)
+  // Автоматски го активира loader-от секогаш кога се менува сигналот 'request' (this.id).
   profileResource = resource({
     params: () => this.id(),
     loader: async ({params}) => {
@@ -42,20 +42,20 @@ export class ProfileView {
     }
   });
 
-  // 3. Computed State
-  // Expose the value of the resource cleanly
+  // 3. Состојба на профилот
+  // Пресметано својство што враќа ја вредноста на ресурсот или null ако не е достапна
   profile = computed(() => {
     return this.profileResource.value() ?? null;
   });
 
-  // Loading state (Bonus: resource gives you isLoading for free)
+  // Состојба која покажува дали ресурсот е во процес на вчитување
   isLoading = computed(() => this.profileResource.isLoading());
 
-  // Error state (Bonus: resource captures errors)
+  // Состојба која покажува дали има грешка при вчитување на ресурсот
   error = computed(() => this.profileResource.error());
 
-  // 4. Ownership Logic
-  // Automatically recalculates when either the profile or the authenticated user changes
+  // 4. Логика за сопственост
+  // Автоматски се пресметува кога ќе се промени профилот или автентификуваниот корисник
   isOwner = computed(() => {
     const profile = this.profile();
 

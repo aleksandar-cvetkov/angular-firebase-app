@@ -1,44 +1,40 @@
-<div class="container mt-4 position-relative">
-  <div class="row justify-content-center flex-column align-items-center">
-    <div class="col-md-6">
-      @if (profile()) {
-      <mat-card>
-        <mat-card-header>
-          <div mat-card-avatar class="overflow-hidden">
-            <img [src]="profile()?.photoUrl || 'assets/default-avatar.png'" alt="Profile Picture" class="rounded-circle object-fit-cover"
-              width="100%" height="100%" />
-          </div>
-          <mat-card-title>{{ profile()?.firstName }} {{ profile()?.lastName }}</mat-card-title>
-          <mat-card-subtitle>{{ profile()?.profession || 'Нема професија' }}</mat-card-subtitle>
-        </mat-card-header>
-
-        <mat-card-content>
-          <p><strong>Место на живеење:</strong> {{ profile()?.location || '-' }}</p>
-          <p><strong>Био:</strong> {{ profile()?.bio }} </p>
-        </mat-card-content>
-
-        @if (isOwner()) {
-          <mat-card-actions>
-            <button mat-raised-button color="primary" [routerLink]="'/profile-edit/' + profile()?.uid">
-              Уреди профил
-            </button>
-          </mat-card-actions>
-        }
-      </mat-card>
-      } @else {
-      <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
-      }
-    </div>
-
-    @if (!isLoggedIn()) {
-      <div class="col-md-6 navigate-buttons mt-3">
-        <button mat-raised-button color="accent" routerLink="/login">
-          Sign in
-        </button>
-        <button mat-raised-button color="accent" routerLink="/register">
-          Register
-        </button>
+<div class="d-flex justify-content-center flex-column align-items-center">
+  @if (profile()) {
+  <mat-card class="w-100">
+    <mat-card-header>
+      <div mat-card-avatar class="overflow-hidden">
+        <img [src]="profile()?.photoUrl || 'assets/default-avatar.png'" alt="Profile Picture"
+          class="rounded-circle object-fit-cover" width="100%" height="100%" />
       </div>
+      <mat-card-title>{{ profile()?.firstName }} {{ profile()?.lastName }}</mat-card-title>
+      <mat-card-subtitle>{{ profile()?.profession || 'Нема професија' }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <p><strong>Место на живеење:</strong> {{ profile()?.location || '-' }}</p>
+      <p><strong>Био:</strong> {{ profile()?.bio }} </p>
+    </mat-card-content>
+
+    @if (isOwner()) {
+    <mat-card-actions>
+      <button mat-raised-button color="primary" [routerLink]="'/profile-edit/' + profile()?.uid">
+        Уреди профил
+      </button>
+    </mat-card-actions>
     }
+  </mat-card>
+  } @else {
+  <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+  }
+
+  @if (!isLoggedIn()) {
+  <div class="col-md-6 navigate-buttons mt-3">
+    <button mat-raised-button color="accent" routerLink="/login">
+      Најави се
+    </button>
+    <button mat-raised-button color="accent" routerLink="/register">
+      Регистрација
+    </button>
   </div>
+  }
 </div>

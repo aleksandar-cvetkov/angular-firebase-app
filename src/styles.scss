@@ -5,23 +5,6 @@
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
-// Define your theme with a warn palette
-// $my-primary: mat.define-palette(mat.$indigo-palette);
-// $my-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
-// $my-warn: mat.define-palette(mat.$red-palette); // Ensure a warn palette is defined
-
-// $my-theme: mat.define-light-theme((
-//   color: (
-//     primary: $my-primary,
-//     accent: $my-accent,
-//     warn: $my-warn,
-//   )
-// ));
-
-// // Include the theme and backwards compatibility mixin
-// @include mat.all-component-themes($my-theme);
-// @include mat.color-variants-backwards-compatibility($my-theme); // Important for M3 apps
-
 html {
   @include mat.theme((color: (primary: mat.$azure-palette,
         tertiary: mat.$blue-palette,
@@ -69,8 +52,6 @@ body {
 }
 
 .menu-holder {
-  // position: absolute;
-  // right: 200px;
   display: flex;
   z-index: 1;
 
@@ -96,26 +77,26 @@ body {
   }
 }
 
-// Error Snackbar
+// Снекбар за грешки
 .error-snackbar {
 
-  // This targets the actual background surface
+  // Ова ја таргетира самата позадина
   .mdc-snackbar__surface {
     background-color: #f44336 !important;
   }
 
-  // This targets the text color
+  // Ова ја таргетира бојата на текстот
   .mdc-snackbar__label {
     color: white !important;
   }
 
-  // This targets the "Close" button color
+  // Ова ја таргетира бојата на копчето "Затвори"
   .mat-mdc-snack-bar-action {
     color: white !important;
   }
 }
 
-// Success Snackbar
+// Снекбар за успешни операции
 .success-snackbar {
   .mdc-snackbar__surface {
     background-color: #4caf50 !important;

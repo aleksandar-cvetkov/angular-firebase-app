@@ -9,10 +9,10 @@
 
     <mat-menu #menu="matMenu" xPosition="before">
         <a mat-menu-item [routerLink]="['/profile', profile()?.uid]">
-            Profile
+            Профил
         </a>
         <a mat-menu-item [routerLink]="['/profile-edit', profile()?.uid]">
-            Edit Profile
+            Уреди профил
         </a>
         <button mat-menu-item (click)="logout()">Одјави се</button>
     </mat-menu>
