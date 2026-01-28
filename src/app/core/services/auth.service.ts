@@ -31,8 +31,12 @@ export class AuthService {
       createdAt: new Date().toISOString(),
       // Додади дифолтни вредности ако е потребно
       firstName: '',
-      lastName: ''
-    });
+      lastName: '',
+      profession: '',
+      bio: '',
+      location: '',
+      photoUrl: ''
+    } as any); // Користи 'as any' за да избегнеш проблеми со типизација во оваа фаза
 
     return credentials.user;
   }
