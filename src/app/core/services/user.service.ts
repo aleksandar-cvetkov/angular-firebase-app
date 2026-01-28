@@ -43,7 +43,19 @@ export class UserService {
     if (!user) throw new Error('Нема најавен корисник!');
 
     const userRef = doc(this._firestore, `users/${user.uid}`);
-    return setDoc(userRef, profile, { merge: true });
+
+    // Филтрирање: Правиме нов објект каде ги прескокнуваме сите undefined вредности
+    const dataToUpdate: any = {};
+    
+    Object.keys(profile).forEach(key => {
+        const value = (profile as any)[key];
+        if (value !== undefined) {
+            dataToUpdate[key] = value;
+        }
+    });
+
+    // merge: true е клучно бидејќи само ќе ги додаде/ажурира полињата што ги праќаме
+    return setDoc(userRef, dataToUpdate, { merge: true });
   }
 
   async getUserProfileById(uid: string): Promise<UserProfile | undefined> {
