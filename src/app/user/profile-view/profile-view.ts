@@ -6,6 +6,9 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { UserInfo } from '../../shared/components/user-info/user-info';
+import { UserStats } from "../../shared/components/user-stats/user-stats";
+import { UserList } from "../../shared/components/user-list/users-list";
 
 @Component({
   selector: 'app-profile-view',
@@ -15,8 +18,11 @@ import { AuthService } from '../../core/services/auth.service';
     MatCardModule,
     MatProgressSpinnerModule,
     MatButtonModule,
-    RouterModule
-  ],
+    RouterModule,
+    UserInfo,
+    UserStats,
+    UserList
+],
   templateUrl: './profile-view.html',
   styleUrl: './profile-view.scss'
 })

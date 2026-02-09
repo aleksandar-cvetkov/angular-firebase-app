@@ -1,0 +1,66 @@
+.users-list-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 20px;
+}
+
+.user-items {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.user-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.user-item img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #eee;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.name {
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+.profession {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.view-btn {
+  text-decoration: none;
+  font-size: 0.85rem;
+  color: #1976d2;
+  font-weight: bold;
+  padding: 5px 10px;
+  border: 1px solid #1976d2;
+  border-radius: 20px;
+  transition: all 0.2s;
+}
+
+.view-btn:hover {
+  background: #1976d2;
+  color: white;
+}

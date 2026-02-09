@@ -1,0 +1,23 @@
+<mat-card>
+    <mat-card-header>
+        <mat-card-title>Поврзи се со други</mat-card-title>
+        <mat-card-subtitle class="subtitle">Откријте нови професионалци во заедницата</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+        <div class="user-items">
+            @for (user of filteredUsers(); track user.uid) {
+            <div class="user-item">
+                <img [src]="user.photoUrl || 'assets/default-avatar.png'" alt="Avatar">
+                <div class="user-info">
+                    <span class="name">{{ user.firstName }} {{ user.lastName }}</span>
+                    <span class="profession">{{ user.profession || 'Член' }}</span>
+                </div>
+                <a [routerLink]="['/profile', user.uid]" target="_blank" rel="noopener noreferrer" class="view-btn">Види</a>
+            </div>
+            } @empty {
+            <p>Во моментов нема други активни членови.</p>
+            }
+        </div>
+    </mat-card-content>
+</mat-card>
