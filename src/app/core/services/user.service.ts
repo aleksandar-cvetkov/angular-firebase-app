@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable, of, switchMap } from 'rxjs';
 import { UserProfile } from '../interface/user-profile.interface';
 import { Auth, user, updatePassword, deleteUser } from '@angular/fire/auth';
-import { collection, collectionData, doc, docData, Firestore, limit, query, setDoc } from '@angular/fire/firestore';
+import { collection, collectionData, doc, docData, Firestore, limit, orderBy, query, setDoc } from '@angular/fire/firestore';
 import { Storage, getDownloadURL, ref, uploadBytes } from '@angular/fire/storage';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { getDoc } from 'firebase/firestore';
@@ -63,10 +63,15 @@ export class UserService {
     return snapshot.exists() ? (snapshot.data() as UserProfile) : undefined;
   }
 
+  // Метод за добивање на листа со корисници, ограничена на одреден број (на пример, 6)
   getAllUsers(limitCount: number = 6) {
     const usersRef = collection(this._firestore, 'users');
     // Правиме квери за да не ги влечеме сите илјадници корисници одеднаш
-    const q = query(usersRef, limit(limitCount));
+    const q = query(
+      usersRef, 
+      orderBy('createdAt', 'desc'), // Сортирање по датум на креирање (најнови први)
+      limit(limitCount)
+    );
     return collectionData(q, { idField: 'uid' }) as Observable<UserProfile[]>;
   }
 

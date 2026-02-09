@@ -1,4 +1,4 @@
-import { Component, computed, input, OnInit } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { UserProfile } from '../../../core/interface/user-profile.interface';
 import { MatCardModule } from '@angular/material/card';
 
@@ -8,14 +8,8 @@ import { MatCardModule } from '@angular/material/card';
   templateUrl: './user-stats.html',
   styleUrl: './user-stats.scss',
 })
-export class UserStats implements OnInit {
+export class UserStats {
   profile = input.required<UserProfile | null>();
-
-  constructor() {}
-
-  ngOnInit() {
-    console.log('UserStats component initialized with profile:', this.profile());
-  }
 
   // 1. Пресметка на комплетност на профил
   completionPercentage = computed(() => {
