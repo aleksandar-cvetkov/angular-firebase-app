@@ -1,20 +1,29 @@
-<div class="d-flex justify-content-center flex-column align-items-center">
+<div class="row gy-4">
   @if (profile()) {
-  <app-user-info [profile]="profile()" [isOwner]="isOwner()"></app-user-info>
+  <div [class]="isOwner() ? 'col-12 col-lg-8' : 'col-12 col-md-10 offset-md-1'">
+    <app-user-info [profile]="profile()" [isOwner]="isOwner()"></app-user-info>
+  </div>
 
-    @if (isLoggedIn()) {
+  @if (isOwner()) {
+  <div class="col-12 col-lg-4">
+    <div class="d-flex flex-column gap-4">
       <app-user-stats [profile]="profile()"></app-user-stats>
-      <app-user-list></app-user-list>
-    } @else {
-    <div class="col-md-6 navigate-buttons mt-3">
-      <button mat-raised-button color="accent" routerLink="/login">
-        Најави се
-      </button>
-      <button mat-raised-button color="accent" routerLink="/register">
-        Регистрација
-      </button>
+      <app-users-list></app-users-list>
     </div>
-    }
+  </div>
+  }
+
+
+  @if (!isLoggedIn()) {
+  <div class="col-12 navigate-buttons mt-3">
+    <button mat-raised-button color="accent" routerLink="/login">
+      Најави се
+    </button>
+    <button mat-raised-button color="accent" routerLink="/register">
+      Регистрација
+    </button>
+  </div>
+  }
   } @else {
   <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
   }

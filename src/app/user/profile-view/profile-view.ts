@@ -8,7 +8,7 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { UserInfo } from '../../shared/components/user-info/user-info';
 import { UserStats } from "../../shared/components/user-stats/user-stats";
-import { UserList } from "../../shared/components/user-list/users-list";
+import { UsersList } from "../../shared/components/users-list/users-list";
 
 @Component({
   selector: 'app-profile-view',
@@ -21,7 +21,7 @@ import { UserList } from "../../shared/components/user-list/users-list";
     RouterModule,
     UserInfo,
     UserStats,
-    UserList
+    UsersList
 ],
   templateUrl: './profile-view.html',
   styleUrl: './profile-view.scss'

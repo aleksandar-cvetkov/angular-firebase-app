@@ -6,12 +6,12 @@ import { MatCardModule } from '@angular/material/card';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-user-list',
+  selector: 'app-users-list',
   imports: [MatCardModule, RouterModule],
   templateUrl: './users-list.html',
   styleUrl: './users-list.scss',
 })
-export class UserList {
+export class UsersList {
   private _userService = inject(UserService);
   private _authService = inject(AuthService);
 
@@ -20,7 +20,6 @@ export class UserList {
 
   // 2. Ги филтрираме за да го тргнеме тековниот корисник од листата
   filteredUsers = computed(() => {
-    console.log('All users:', this.allUsers());
     const currentUser = this._authService.currentUserSignal();
     return this.allUsers().filter(u => u.uid !== currentUser?.uid);
   });

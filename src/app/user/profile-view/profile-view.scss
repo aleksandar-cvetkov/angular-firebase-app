@@ -1,4 +1,10 @@
-mat-card {
-  margin-top: 1rem;
-  row-gap: 16px;
+/* Дополнителен ефект за позадината на целата страна */
+:host {
+  display: block;
+  padding: 20px;
+  min-height: calc(100vh - 105px);
+  /* Го земаме целосниот висина на прозорецот минус висината на header-от */
+  background-color: #f4f7f9;
+  /* Многу светла сина/сива за контраст со белите картички */
+  border-radius: 12px;
 }
