@@ -1,34 +1,21 @@
-<div class="d-flex justify-content-center flex-column align-items-center">
+<div class="row gy-4">
   @if (profile()) {
-  <mat-card class="w-100">
-    <mat-card-header>
-      <div mat-card-avatar class="overflow-hidden">
-        <img [src]="profile()?.photoUrl || 'assets/default-avatar.png'" alt="Profile Picture"
-          class="rounded-circle object-fit-cover" width="100%" height="100%" />
-      </div>
-      <mat-card-title>{{ profile()?.firstName }} {{ profile()?.lastName }}</mat-card-title>
-      <mat-card-subtitle>{{ profile()?.profession || 'Нема професија' }}</mat-card-subtitle>
-    </mat-card-header>
+  <div [class]="isOwner() ? 'col-12 col-lg-8' : 'col-12 col-md-10 offset-md-1'">
+    <app-user-info [profile]="profile()" [isOwner]="isOwner()"></app-user-info>
+  </div>
 
-    <mat-card-content>
-      <p><strong>Место на живеење:</strong> {{ profile()?.location || '-' }}</p>
-      <p><strong>Био:</strong> {{ profile()?.bio }} </p>
-    </mat-card-content>
-
-    @if (isOwner()) {
-    <mat-card-actions>
-      <button mat-raised-button color="primary" [routerLink]="'/profile-edit/' + profile()?.uid">
-        Уреди профил
-      </button>
-    </mat-card-actions>
-    }
-  </mat-card>
-  } @else {
-  <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+  @if (isOwner()) {
+  <div class="col-12 col-lg-4">
+    <div class="d-flex flex-column gap-4">
+      <app-user-stats [profile]="profile()"></app-user-stats>
+      <app-users-list></app-users-list>
+    </div>
+  </div>
   }
 
+
   @if (!isLoggedIn()) {
-  <div class="col-md-6 navigate-buttons mt-3">
+  <div class="col-12 navigate-buttons mt-3">
     <button mat-raised-button color="accent" routerLink="/login">
       Најави се
     </button>
@@ -36,5 +23,8 @@
       Регистрација
     </button>
   </div>
+  }
+  } @else {
+  <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
   }
 </div>

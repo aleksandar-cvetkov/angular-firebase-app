@@ -1,0 +1,54 @@
+.stats-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.stat-item {
+  margin: 15px 0;
+}
+
+.stat-label {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.progress-bar {
+  background: #eee;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background: #4caf50; /* Зелена за успех */
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  text-align: center;
+  margin-top: 15px;
+}
+
+.mini-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #1976d2;
+}
+
+.stat-title {
+  font-size: 0.8rem;
+  color: #666;
+}
