@@ -9,6 +9,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { UserInfo } from '../../shared/components/user-info/user-info';
 import { UserStats } from "../../shared/components/user-stats/user-stats";
 import { UsersList } from "../../shared/components/users-list/users-list";
+import { UserNotifications } from '../../shared/components/user-notifications/user-notifications';
 
 @Component({
   selector: 'app-profile-view',
@@ -21,7 +22,8 @@ import { UsersList } from "../../shared/components/users-list/users-list";
     RouterModule,
     UserInfo,
     UserStats,
-    UsersList
+    UsersList,
+    UserNotifications
 ],
   templateUrl: './profile-view.html',
   styleUrl: './profile-view.scss'

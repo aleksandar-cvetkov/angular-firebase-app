@@ -1,7 +1,12 @@
 <div class="row gy-4">
   @if (profile()) {
   <div [class]="isOwner() ? 'col-12 col-lg-8' : 'col-12 col-md-10 offset-md-1'">
-    <app-user-info [profile]="profile()" [isOwner]="isOwner()"></app-user-info>
+    <div class="d-flex flex-column gap-4">
+      <app-user-info [profile]="profile()" [isOwner]="isOwner()"></app-user-info>
+      @if (isOwner()) {
+      <app-user-notifications></app-user-notifications>
+      }
+    </div>
   </div>
 
   @if (isOwner()) {
