@@ -14,7 +14,7 @@
     </mat-card-content>
 
     @if (isOwner()) {
-    <mat-card-actions>
+    <mat-card-actions class="justify-center">
         <button mat-raised-button color="primary" [routerLink]="'/profile-edit/' + profile()?.uid">
             Уреди профил
         </button>
