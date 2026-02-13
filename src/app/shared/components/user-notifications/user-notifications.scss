@@ -1,0 +1,62 @@
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.badge {
+  background: #ff5252;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  align-self: center;
+  margin-left: 10px;
+}
+
+.notification-items {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.notification-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.notification-item.unread {
+  background: #f0f7ff;
+  border-left: 3px solid #1976d2;
+}
+
+.icon {
+  font-size: 1.5rem;
+}
+
+.content .msg {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.content .time {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.view-all {
+  width: 100%;
+  margin-top: 20px;
+  background: none;
+  border: 1px solid #ddd;
+  padding: 8px;
+  border-radius: 6px;
+  color: #666;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
